@@ -2,7 +2,7 @@
 
 ## Download for Windows
 
-[Download the Windows 8 compatibility ZIP](https://github.com/pika2112/GPT/releases/download/v2.0.2-faria/Farmacia-Faria-2.0.2-Windows8.zip).
+[Download the Windows 8 compatibility ZIP](https://github.com/pika2112/GPT/releases/download/v2.0.3-faria/Farmacia-Faria-2.0.3-Windows8.zip).
 
 The original 2.0.0 portable EXE requires Windows 10 or newer. Use this replacement on Windows 8.
 
@@ -20,7 +20,8 @@ and send a native notification. The main PC must remain awake.
 The dashboard focuses on today in the Lisbon time zone. Historical metrics
 and records are in a collapsed panel. Incoming calls record their real socket IP;
 names can be assigned to computers and used in filters and CSV exports.
-The Windows startup option is available both in the app and in its tray menu.
+A dedicated Definições dialog holds IP/name mappings, Windows startup, sound,
+notifications and full backups. Windows startup is also available in the tray menu.
 
 The in-app history survives restarts and supports date/status/post/ID filters,
 response-time summaries, pagination, filtered CSV export and a complete JSON backup.

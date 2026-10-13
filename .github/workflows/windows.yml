@@ -38,7 +38,7 @@ jobs:
           Copy-Item START-HERE.txt dist/win-unpacked/START-HERE.txt
           Copy-Item INSTALACAO.txt dist/win-unpacked/INSTALACAO.txt
           Copy-Item ATUALIZAR.txt dist/win-unpacked/ATUALIZAR.txt
-          7z a -tzip -mx=3 Farmacia-Faria-2.0.2-Windows8.zip ./dist/win-unpacked/*
+          7z a -tzip -mx=3 Farmacia-Faria-2.0.3-Windows8.zip ./dist/win-unpacked/*
           if ($LASTEXITCODE -ne 0) { throw 'ZIP packaging failed' }
       - uses: actions/upload-artifact@v4
         with:
@@ -50,10 +50,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: pwsh
         run: |
-          gh release view v2.0.2-faria --repo $env:GITHUB_REPOSITORY *> $null
+          gh release view v2.0.3-faria --repo $env:GITHUB_REPOSITORY *> $null
           if ($LASTEXITCODE -ne 0) {
-            gh release create v2.0.2-faria --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'Farmácia Faria 2.0.2 — painel diário e postos por IP' --notes 'Interface Farmácia Faria com foco em hoje, histórico expansível, exportação CSV/JSON, nomes de postos por IP e arranque automático. Conserva os dados existentes. Leia ATUALIZAR.txt antes de trocar a pasta. Compatível com Windows 8 através de Electron 22; runtime antigo sem atualizações de segurança. Arranque e chamadas testados num runner Windows.'
+            gh release create v2.0.3-faria --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'Farmácia Faria 2.0.3 — painel diário e postos por IP' --notes 'Interface Farmácia Faria com foco em hoje, histórico expansível, exportação CSV/JSON, Definições com nomes de postos por IP, avisos e arranque automático. Conserva os dados existentes. Leia ATUALIZAR.txt antes de trocar a pasta. Compatível com Windows 8 através de Electron 22; runtime antigo sem atualizações de segurança. Arranque e chamadas testados num runner Windows.'
             if ($LASTEXITCODE -ne 0) { throw 'Release creation failed' }
           }
-          gh release upload v2.0.2-faria Farmacia-Faria-2.0.2-Windows8.zip --repo $env:GITHUB_REPOSITORY --clobber
+          gh release upload v2.0.3-faria Farmacia-Faria-2.0.3-Windows8.zip --repo $env:GITHUB_REPOSITORY --clobber
           if ($LASTEXITCODE -ne 0) { throw 'Release upload failed' }

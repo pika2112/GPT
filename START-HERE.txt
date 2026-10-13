@@ -1,4 +1,4 @@
-FARMÁCIA FARIA 2.0.2 — WINDOWS 8
+FARMÁCIA FARIA 2.0.3 — WINDOWS 8
 
 Se já tem uma versão instalada, leia primeiro ATUALIZAR.txt.
 
@@ -11,10 +11,10 @@ Se já tem uma versão instalada, leia primeiro ATUALIZAR.txt.
 4. "Histórico e análise" abre as métricas adicionais, os filtros e os registos
    de outros dias. Pode exportar o dia em CSV, os registos filtrados em CSV,
    ou uma cópia JSON completa do histórico e das associações de postos.
-5. Em "Postos da farmácia", associe IPs a nomes (ex.: 10.21.225.20 → Marcelo).
+5. Em "Definições" → "Postos da farmácia", associe IPs a nomes (ex.: 10.21.225.20 → Marcelo).
    Faça uma chamada de cada posto para descobrir o IP real nessa lista.
    Reserve os IPs no router. O IP identifica o computador, não uma conta pessoal.
-6. Em "Arranque da aplicação", ative o início automático depois de iniciar
+6. Em "Definições" → "Arranque da aplicação", ative o início automático depois de iniciar
    sessão no Windows. Guarde primeiro a pasta na localização definitiva.
 7. Outros computadores da mesma rede usam o endereço no navegador, por exemplo
    http://10.21.225.7:3000, e escolhem Colaborador.
