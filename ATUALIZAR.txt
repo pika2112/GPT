@@ -1,4 +1,4 @@
-FARMÁCIA FARIA — ATUALIZAR PARA 2.0.3 SEM PERDER O HISTÓRICO
+FARMÁCIA FARIA — ATUALIZAR PARA 2.0.4 SEM PERDER O HISTÓRICO
 
 PASTA PRINCIPAL (ROOT)
 Guarde a aplicação inteira numa pasta fixa, por exemplo:
@@ -9,7 +9,8 @@ Mantenha juntos o EXE, as DLLs e as pastas resources e locales.
 Não copie apenas o EXE. Não execute a aplicação dentro do ZIP.
 
 PASSO A PASSO
-1. Na aplicação antiga, exporte "Cópia JSON completa" e guarde num local seguro.
+1. Em Definições → Cópia de segurança, descarregue uma cópia completa
+   e guarde num local seguro. Em versões anteriores, o botão pode estar no histórico.
 2. Clique com o botão direito no ícone junto ao relógio e escolha
    "Sair e parar o serviço…". O X apenas esconde a janela; não a encerra.
 3. Extraia TODOS os ficheiros do novo ZIP para uma pasta nova.

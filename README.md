@@ -2,7 +2,7 @@
 
 ## Download for Windows
 
-[Download the Windows 8 compatibility ZIP](https://github.com/pika2112/GPT/releases/download/v2.0.3-faria/Farmacia-Faria-2.0.3-Windows8.zip).
+[Download the Windows 8 compatibility ZIP](https://github.com/pika2112/GPT/releases/download/v2.0.4-faria/Farmacia-Faria-2.0.4-Windows8.zip).
 
 The original 2.0.0 portable EXE requires Windows 10 or newer. Use this replacement on Windows 8.
 
@@ -19,12 +19,12 @@ and send a native notification. The main PC must remain awake.
 
 The dashboard focuses on today in the Lisbon time zone. Historical metrics
 and records are in a collapsed panel. Incoming calls record their real socket IP;
-names can be assigned to computers and used in filters and CSV exports.
+names can be assigned to computers and used in filters and XLS exports.
 A dedicated Definições dialog holds IP/name mappings, Windows startup, sound,
 notifications and full backups. Windows startup is also available in the tray menu.
 
 The in-app history survives restarts and supports date/status/post/ID filters,
-response-time summaries, pagination, filtered CSV export and a complete JSON backup.
+response-time summaries, pagination, filtered XLS export and a complete JSON backup.
 
 ## Run from source
 
@@ -57,3 +57,7 @@ Builds are unsigned. Native Windows focus, startup and notification behavior
 requires verification on a Windows PC.
 
 See `INSTALACAO.txt` for operating instructions, data location and backups.
+
+Brand artwork: the logo and symbol are converted directly from the user-supplied Illustrator artwork, with original outlined letters.
+The alarm pulses red and contains no logo. XLS exports use the bundled SheetJS writer;
+see `public/vendor/xlsx-LICENSE.txt`. JSON backups are available only in Definições.

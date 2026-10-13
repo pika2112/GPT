@@ -1,4 +1,4 @@
-FARMÁCIA FARIA 2.0.3 — WINDOWS 8
+FARMÁCIA FARIA 2.0.4 — WINDOWS 8
 
 Se já tem uma versão instalada, leia primeiro ATUALIZAR.txt.
 
@@ -9,8 +9,8 @@ Se já tem uma versão instalada, leia primeiro ATUALIZAR.txt.
    O painel atualiza automaticamente quando chega uma chamada e à meia-noite,
    usando o horário de Lisboa. Chamadas pendentes de ontem continuam visíveis.
 4. "Histórico e análise" abre as métricas adicionais, os filtros e os registos
-   de outros dias. Pode exportar o dia em CSV, os registos filtrados em CSV,
-   ou uma cópia JSON completa do histórico e das associações de postos.
+   de outros dias. Pode exportar o dia em XLS, os registos filtrados em XLS,
+   e, em Definições → Cópia de segurança, guardar uma cópia JSON completa.
 5. Em "Definições" → "Postos da farmácia", associe IPs a nomes (ex.: 10.21.225.20 → Marcelo).
    Faça uma chamada de cada posto para descobrir o IP real nessa lista.
    Reserve os IPs no router. O IP identifica o computador, não uma conta pessoal.
@@ -39,3 +39,9 @@ Usa Electron 22 para compatibilidade com Windows 7/8/8.1.
 Esse runtime antigo não recebe atualizações de segurança.
 Use apenas numa rede local de confiança. Não existem contas/autenticação.
 O programa não tem assinatura digital; não precisa de instalar Node.js.
+
+AJUSTES 2.0.4
+O alerta pulsa a vermelho, sem logótipo (a opção de reduzir movimento mantém
+um alerta vermelho estático). A marca usa o vetor original fornecido.
+As exportações são XLS verdadeiros; a cópia JSON está apenas nas Definições.
+Históricos com mais de 65.535 registos são divididos em folhas no mesmo XLS.

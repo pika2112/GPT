@@ -1,9 +1,9 @@
 Para atualizar uma versão existente, leia primeiro ATUALIZAR.txt.
 
-FARMÁCIA FARIA — CHAMADAS 2.0.3 — WINDOWS 8
+FARMÁCIA FARIA — CHAMADAS 2.0.4 — WINDOWS 8
 
 INICIAR A APLICAÇÃO
-1. Descarregue Farmacia-Faria-2.0.3-Windows8.zip e extraia TODOS os ficheiros.
+1. Descarregue Farmacia-Faria-2.0.4-Windows8.zip e extraia TODOS os ficheiros.
    Abra a pasta extraída e execute Iniciar.cmd.
    Mantenha o EXE, as DLLs e as pastas resources e locales juntos.
    Não precisa de Node.js. O programa não tem assinatura digital.
@@ -50,9 +50,10 @@ No histórico do Back Office:
 - Veja contagem, pendentes, espera média e maior espera.
 - Veja chamadas por dia para os últimos sete dias do período.
 - Percorra todo o histórico (25 linhas por página).
-- Exporte as linhas filtradas em CSV, com datas UTC e espera em segundos.
-  O CSV usa ponto e vírgula e UTF-8 e pode ser aberto no Excel.
-- Descarregue "Cópia JSON completa" para guardar uma cópia do histórico.
+- Exporte as linhas filtradas em XLS, com datas UTC e espera em segundos.
+  O ficheiro é Excel 97-2003 (BIFF8), com datas no horário de Lisboa,
+  referências UTC e espera numérica em segundos.
+- Em Definições → Cópia de segurança, use "Descarregar cópia completa".
 As datas apresentadas e os filtros usam o fuso horário do computador do utilizador.
 A espera média e máxima usam apenas chamadas atendidas.
 
@@ -95,7 +96,7 @@ O servidor não publica o código-fonte nem a pasta de dados na rede.
 
 COMPATIBILIDADE E DIAGNÓSTICO
 A versão 2.0.0 não funciona no Windows 8 (exige Windows 10+).
-A versão 2.0.3 usa Electron 22 para Windows 7/8/8.1. Este runtime antigo
+A versão 2.0.4 usa Electron 22 para Windows 7/8/8.1. Este runtime antigo
 não recebe atualizações de segurança: use apenas numa rede local de confiança.
 Se não abrir, execute Iniciar.cmd e indique o código de saída.
 Os logs diagnostico-console.log e diagnostico-electron.log ficam nesta pasta.

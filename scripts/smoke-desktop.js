@@ -29,6 +29,8 @@ module.exports = async function testar({ janela, servico, tray, log }) {
         ws.send(JSON.stringify({ tipo: 'chamar', pedidoId: randomUUID() }));
         await esperar(() => servico.estado().chamadaAtiva && janela.isVisible());
         await esperar(() => janela.webContents.executeJavaScript("!document.getElementById('alert').classList.contains('hidden')"));
+        assert.equal(await janela.webContents.executeJavaScript('document.querySelectorAll("#alert img").length'),0);
+        assert.equal(await janela.webContents.executeJavaScript('getComputedStyle(document.getElementById("alert")).animationName'),await janela.webContents.executeJavaScript('matchMedia("(prefers-reduced-motion: reduce)").matches ? "none" : "chamadaVermelha"'));
         assert.equal(JSON.parse(fs.readFileSync(path.join(servico.pastaDados, 'chamadas.json'))).chamadas.length, 1);
         const id = servico.estado().chamadas[0].id;
         ws.send(JSON.stringify({ tipo: 'atendido', pedidoId: randomUUID(), chamadaId: id }));
@@ -36,7 +38,8 @@ module.exports = async function testar({ janela, servico, tray, log }) {
         await esperar(() => janela.webContents.executeJavaScript("document.getElementById('total').textContent === '1'"));
         assert.equal(await janela.webContents.executeJavaScript('document.getElementById("todayTotal").textContent'),'1');
         assert.ok(await janela.webContents.executeJavaScript('document.getElementById("todayLog").textContent.includes("Marcelo")'));
-        await janela.webContents.executeJavaScript('exportTodayCSV()');
+        assert.equal(await janela.webContents.executeJavaScript('Array.from(new Uint8Array(FariaExcel.criarXls({chamadas:todayCalls(),postos:posts})).slice(0,8)).map(x=>x.toString(16).padStart(2,"0")).join("")'),'d0cf11e0a1b11ae1');
+        await janela.webContents.executeJavaScript('exportTodayXLS()');
         log.escrever('SMOKE TEST PASSED: real desktop launch, preload, tray close, incoming call, window restore, saved history and resolution.');
     } finally { ws.close(); }
 };
