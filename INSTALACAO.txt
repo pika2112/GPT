@@ -1,9 +1,9 @@
 Para atualizar uma versão existente, leia primeiro ATUALIZAR.txt.
 
-FARMÁCIA FARIA — CHAMADAS 2.0.4 — WINDOWS 8
+FARMÁCIA FARIA — CHAMADAS 2.0.5 — WINDOWS 8
 
 INICIAR A APLICAÇÃO
-1. Descarregue Farmacia-Faria-2.0.4-Windows8.zip e extraia TODOS os ficheiros.
+1. Descarregue Farmacia-Faria-2.0.5-Windows8.zip e extraia TODOS os ficheiros.
    Abra a pasta extraída e execute Iniciar.cmd.
    Mantenha o EXE, as DLLs e as pastas resources e locales juntos.
    Não precisa de Node.js. O programa não tem assinatura digital.
@@ -15,7 +15,7 @@ INICIAR A APLICAÇÃO
    clique com o botão direito no ícone azul. Em "Endereços para colaboradores",
    clique no endereço para o copiar.
 5. Nos outros computadores, abra esse endereço num navegador, por exemplo
-   http://192.168.1.100:3000, e escolha Colaborador.
+   http://10.21.225.7:3000, e escolha Colaborador.
 6. Para iniciar automaticamente, marque "Iniciar com o Windows" no menu
    do ícone. A aplicação arranca depois de iniciar sessão no Windows.
 
@@ -54,7 +54,7 @@ No histórico do Back Office:
   O ficheiro é Excel 97-2003 (BIFF8), com datas no horário de Lisboa,
   referências UTC e espera numérica em segundos.
 - Em Definições → Cópia de segurança, use "Descarregar cópia completa".
-As datas apresentadas e os filtros usam o fuso horário do computador do utilizador.
+As datas apresentadas e os filtros usam o horário de Lisboa.
 A espera média e máxima usam apenas chamadas atendidas.
 
 DADOS E CÓPIAS DE SEGURANÇA
@@ -96,7 +96,7 @@ O servidor não publica o código-fonte nem a pasta de dados na rede.
 
 COMPATIBILIDADE E DIAGNÓSTICO
 A versão 2.0.0 não funciona no Windows 8 (exige Windows 10+).
-A versão 2.0.4 usa Electron 22 para Windows 7/8/8.1. Este runtime antigo
+A versão 2.0.5 usa Electron 22 para Windows 7/8/8.1. Este runtime antigo
 não recebe atualizações de segurança: use apenas numa rede local de confiança.
 Se não abrir, execute Iniciar.cmd e indique o código de saída.
 Os logs diagnostico-console.log e diagnostico-electron.log ficam nesta pasta.

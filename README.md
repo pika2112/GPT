@@ -2,12 +2,14 @@
 
 ## Download for Windows
 
-[Download the Windows 8 compatibility ZIP](https://github.com/pika2112/GPT/releases/download/v2.0.4-faria/Farmacia-Faria-2.0.4-Windows8.zip).
+[Download the Windows 8 compatibility ZIP](https://github.com/pika2112/GPT/releases/download/v2.0.5-faria/Farmacia-Faria-2.0.5-Windows8.zip).
 
 The original 2.0.0 portable EXE requires Windows 10 or newer. Use this replacement on Windows 8.
 
 Extract **all** files and run `Iniciar.cmd` on the Back Office PC. Keep the application folder together.
 No Node.js installation is needed. Read `START-HERE.txt` first.
+
+[Installation and user manual (Portuguese PDF)](https://github.com/pika2112/GPT/releases/download/v2.0.5-faria/Manual-Farmacia-Faria-2.0.5.pdf). The same manual and final-test checklist are included in the ZIP.
 
 See `ATUALIZAR.txt` to replace an old version without losing history.
 
@@ -61,3 +63,8 @@ See `INSTALACAO.txt` for operating instructions, data location and backups.
 Brand artwork: the logo and symbol are converted directly from the user-supplied Illustrator artwork, with original outlined letters.
 The alarm pulses red and contains no logo. XLS exports use the bundled SheetJS writer;
 see `public/vendor/xlsx-LICENSE.txt`. JSON backups are available only in Definições.
+
+Version 2.0.5 defers historical rendering and Excel loading, caches shared server snapshots,
+retries unacknowledged requests without duplicates, distinguishes the calling computer,
+and bounds startup logs. See `VALIDATION.txt` for test scope and performance limits.
+The final on-site test checklist is in the manual and `TESTE-FINAL.txt`.

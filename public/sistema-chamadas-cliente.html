@@ -20,9 +20,9 @@
 <section id="statusCard" class="card service"><div><div class="eyebrow">Atendimento em tempo real</div><h2 id="statusTitle">Pronto para atender</h2><div id="wait" class="timer">—</div><p id="serviceDescription" class="muted">Sem chamadas pendentes. Estamos disponíveis.</p><button id="resolveButton" class="primary hidden" onclick="resolveCall()">Marcar como atendido</button></div><div class="service-footer"><p id="backgroundHint" class="muted"></p><div class="row toolbar"><button id="soundButton" onclick="toggleSound()">Ativar som</button><button id="notificationButton" onclick="enableNotifications()">Ativar notificações</button></div></div></section>
 <section class="card today-overview" aria-label="Resumo de hoje"><div><div class="eyebrow">O dia em números</div><h2>Chamadas de hoje</h2></div><div><div id="todayTotal" class="number">0</div><p class="muted">pedidos de atendimento</p></div><div class="counts"><div><strong id="todayResolved">0</strong><span>atendidas</span></div><div><strong id="todayPending">0</strong><span>por atender</span></div></div></section>
 </div>
-<section class="card"><div class="row between activity-head"><div class="activity-title"><h2>Atividade de hoje</h2><span class="count-pill" id="todayCount">0</span></div><button class="quiet" onclick="exportTodayXLS()">Exportar dia · XLS</button></div><div class="table-wrap"><table><thead><tr><th>Chamada</th><th>Posto</th><th>Atendida</th><th>Espera</th><th>Estado</th></tr></thead><tbody id="todayLog"></tbody></table></div><div class="row between activity-foot"><span id="todayPageInfo"></span><div class="row"><button id="todayPrev" class="quiet hidden" onclick="turnTodayPage(-1)">Anterior</button><button id="todayNext" class="quiet hidden" onclick="turnTodayPage(1)">Seguinte</button></div></div></section>
+<section class="card"><div class="row between activity-head"><div class="activity-title"><h2>Atividade de hoje</h2><span class="count-pill" id="todayCount">0</span></div><button class="quiet" id="todayExportButton" onclick="exportTodayXLS()">Exportar dia · XLS</button></div><div class="table-wrap"><table><thead><tr><th>Chamada</th><th>Posto</th><th>Atendida</th><th>Espera</th><th>Estado</th></tr></thead><tbody id="todayLog"></tbody></table></div><div class="row between activity-foot"><span id="todayPageInfo"></span><div class="row"><button id="todayPrev" class="quiet hidden" onclick="turnTodayPage(-1)">Anterior</button><button id="todayNext" class="quiet hidden" onclick="turnTodayPage(1)">Seguinte</button></div></div></section>
 <details id="analysisPanel" class="analysis"><summary><div><strong>Histórico e análise</strong><span class="muted">Consultar outros dias, explorar métricas e exportar registos</span></div><span class="chevron" aria-hidden="true">⌄</span></summary><div class="analysis-content">
-<div class="row between analysis-tools"><h2>Todos os registos</h2><div class="row"><button class="quiet" onclick="exportXLS()">Exportar XLS filtrado</button></div></div>
+<div class="row between analysis-tools"><h2>Todos os registos</h2><div class="row"><button class="quiet" id="historyExportButton" onclick="exportXLS()">Exportar XLS filtrado</button></div></div>
 <div class="filters"><label>Data inicial<input type="date" id="from" onchange="filterChanged()"></label><label>Data final<input type="date" id="to" onchange="filterChanged()"></label><label>Estado<select id="filterStatus" onchange="filterChanged()"><option value="all">Todos</option><option value="pending">Por atender</option><option value="resolved">Atendidas</option></select></label><label>Posto<select id="filterPost" onchange="filterChanged()"><option value="all">Todos os postos</option></select></label><label>Pesquisar ID<input type="search" id="search" placeholder="ID da chamada" oninput="filterChanged()"></label></div>
 <div class="row between"><span id="filterInfo" class="muted"></span><button class="quiet" onclick="resetFilters()">Limpar filtros</button></div>
 <div class="stats"><div class="stat"><span class="muted">Chamadas no período</span><strong id="total">0</strong></div><div class="stat"><span class="muted">Por atender</span><strong id="pending">0</strong></div><div class="stat"><span class="muted">Espera média¹</span><strong id="average">—</strong></div><div class="stat"><span class="muted">Maior espera¹</span><strong id="maximum">—</strong></div></div>
@@ -30,22 +30,24 @@
 <div class="table-wrap"><table><thead><tr><th>ID</th><th>Posto</th><th>Data / hora</th><th>Atendida em</th><th>Espera</th><th>Estado</th></tr></thead><tbody id="log"></tbody></table></div>
 <div class="row between pagination"><span id="pageInfo" class="muted"></span><div class="row"><button id="prev" onclick="turnPage(-1)">Anterior</button><button id="next" onclick="turnPage(1)">Seguinte</button></div></div>
 </div></details>
-<p class="page-footer">Farmácia Faria · Atendimento com proximidade <span style="float:right">v2.0.4</span></p>
+<p id="exportInfo" class="muted" role="status" style="margin-top:16px"></p>
+<p class="page-footer">Farmácia Faria · Atendimento com proximidade <span style="float:right">v2.0.5</span></p>
 </div>
 </div>
 </main>
 <dialog id="settingsDialog" class="settings-dialog" aria-labelledby="settingsTitle"><div class="row between"><div><div class="eyebrow">Farmácia Faria</div><h2 id="settingsTitle">Definições</h2><p class="muted" style="margin-top:6px">Postos e funcionamento da aplicação</p></div><button class="quiet" onclick="closeSettings()" aria-label="Fechar definições">Fechar</button></div><section style="margin-top:28px;border-top:1px solid var(--line);padding-top:24px" aria-labelledby="postHeading"><h2 id="postHeading">Postos da farmácia</h2><p class="muted" style="margin:8px 0 16px">Associe um nome ao IP do computador que chama. Ex.: IP do posto → Marcelo.</p><form class="row" onsubmit="savePost(event)" style="align-items:flex-end"><label style="flex:1;min-width:160px">Endereço IP<input id="postIp" required maxlength="64" placeholder="10.21.225.20"></label><label style="flex:1;min-width:160px">Nome do posto / colaborador<input id="postName" required maxlength="60" placeholder="Marcelo"></label><button id="savePostButton" type="submit" class="primary">Guardar associação</button></form><p id="postFeedback" role="status" class="muted" style="margin-top:12px"></p><div class="table-wrap" style="margin-top:15px"><table><thead><tr><th>IP</th><th>Nome</th><th>Alterar</th></tr></thead><tbody id="postLog"></tbody></table></div><p class="muted" style="font-size:12px;margin-top:14px">O IP identifica o computador. Reserve os endereços no router para manter as associações.</p></section><section id="startupSettings" class="hidden" style="margin-top:24px;padding-top:24px;border-top:1px solid var(--line)"><h2>Arranque da aplicação</h2><label class="row" style="margin-top:18px;font-size:14px;color:var(--green)"><input id="startupToggle" type="checkbox" onchange="setStartup(this.checked)" style="width:18px;margin:0;accent-color:var(--green)">Iniciar automaticamente com o Windows</label><p id="startupInfo" role="status" class="muted" style="font-size:12px;margin-top:10px">Depois de iniciar sessão neste computador. Guarde a aplicação na pasta definitiva antes de ativar.</p></section><section style="margin-top:24px;padding-top:24px;border-top:1px solid var(--line)"><h2>Avisos de atendimento</h2><label class="row" style="margin-top:18px;font-size:14px;color:var(--green)"><input id="settingsSound" type="checkbox" onchange="toggleSound()" style="width:18px;margin:0;accent-color:var(--green)">Som enquanto houver uma chamada pendente</label><button id="settingsNotifications" class="quiet" style="margin-top:16px" onclick="enableNotifications()">Ativar notificações do navegador</button><p class="muted" style="font-size:12px;margin-top:12px">Pode controlar o som também no painel de atendimento.</p></section><section style="margin-top:24px;padding-top:24px;border-top:1px solid var(--line)"><h2>Cópia de segurança</h2><p class="muted" style="margin:10px 0 14px">Guarde todos os registos e as associações de postos num ficheiro JSON.</p><button class="quiet" onclick="exportBackup()">Descarregar cópia completa</button></section></dialog>
 <div id="alert" class="alert hidden" role="dialog" aria-modal="true" aria-labelledby="alertTitle"><div class="alert-inner"><div class="eyebrow" style="margin-top:35px">Chamada de atendimento</div><h2 id="alertTitle">Há alguém à sua espera.</h2><div id="alertTimer" class="timer">00:00</div><p>Marque a chamada como atendida quando prestar apoio.</p><div class="row"><button id="alertResolve" class="primary" onclick="resolveCall()">Atendido</button><button class="quiet" onclick="dismissAlert()">Ver painel</button></div></div></div>
-<script src="vendor/xlsx.full.min.js"></script>
-<script src="excel-export.js"></script>
 <script>
 
 'use strict';
 const $ = id => document.getElementById(id);
-let calls = [], posts = {}, todayPage = 1, lastDay = null, role = null, ws, online = false, ready = false, request = null, page = 1, sound = false, audio, lastBeep = 0, notified = null, dismissed = null, notification;
+let calls = [], posts = {}, myIp = null, todayPage = 1, lastDay = null, role = null, ws, online = false, ready = false, request = null, page = 1, sound = false, audio, lastBeep = 0, notified = null, dismissed = null, notification;
+let requestTimer = null;
+let activeCached = null, historyDirty = true, postsDirty = true, excelReady = null, exportBusy = false;
+const dayCache = new Map();
 const PAGE_SIZE = 25, TODAY_SIZE = 6, TIME_ZONE = 'Europe/Lisbon';
 const dayFormatter = new Intl.DateTimeFormat('en-GB', { timeZone: TIME_ZONE, year: 'numeric', month: '2-digit', day: '2-digit' });
-function activeCall(){ return calls.find(c => !c.resolvida); }
+function activeCall(){ return activeCached; }
 function duration(c){ return Math.max(0,(c.resolvida ? Date.parse(c.horaResolucao) : Date.now()) - Date.parse(c.horaChamada)); }
 function time(ms){ const s=Math.floor(Math.max(0,ms)/1000);return s>=60 ? `${Math.floor(s/60)}m ${s%60}s` : `${s}s`; }
 function timer(ms){ const s=Math.floor(Math.max(0,ms)/1000);return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; }
@@ -53,7 +55,8 @@ function date(iso){ return iso ? new Date(iso).toLocaleString('pt-PT',{timeZone:
 function localDay(d){ const parts=dayFormatter.formatToParts(d),get=type=>parts.find(p=>p.type===type).value;return `${get('year')}-${get('month')}-${get('day')}`; }
 function clock(iso){return iso?new Date(iso).toLocaleTimeString('pt-PT',{timeZone:TIME_ZONE,hour:'2-digit',minute:'2-digit',second:'2-digit'}):'—';}
 function origin(c){return c.origemIp?(posts[c.origemIp]||c.origemNome||'Posto sem nome'):'Posto não registado';}
-function todayCalls(){const day=localDay(new Date());return calls.filter(c=>localDay(new Date(c.horaChamada))===day);}
+function callDay(c){const saved=dayCache.get(c.id);if(saved&&saved.iso===c.horaChamada)return saved.day;const day=localDay(new Date(c.horaChamada));dayCache.set(c.id,{iso:c.horaChamada,day});return day;}
+function todayCalls(){const day=localDay(new Date());return calls.filter(c=>callDay(c)===day);}
 function addPostCell(tr,c){const td=document.createElement('td'),name=document.createElement('div'),ip=document.createElement('small');name.textContent=origin(c);ip.textContent=c.origemIp||'Registo anterior à identificação de postos';ip.className='muted';ip.style.fontSize='11px';td.append(name,ip);tr.append(td);}
 function addStateCell(tr,c){const td=document.createElement('td'),tag=document.createElement('span');tag.className=`tag ${c.resolvida?'':'pending'}`;tag.textContent=c.resolvida?'Atendida':'Por atender';td.append(tag);tr.append(td);}
 function addCell(tr,value,c){const td=document.createElement('td');td.textContent=value;if(c)td.title=c.id;tr.append(td);return td;}
@@ -72,6 +75,7 @@ function renderToday(){
 }
 function turnTodayPage(delta){todayPage+=delta;renderToday();}
 function renderPosts(){
+ postsDirty=false;
  const selected=$('filterPost').value,ips=[...new Set([...Object.keys(posts),...calls.map(c=>c.origemIp).filter(Boolean)])].sort((a,b)=>(posts[a]||a).localeCompare(posts[b]||b,'pt-PT'));
  $('filterPost').replaceChildren();for(const [value,label] of [['all','Todos os postos'],...ips.map(ip=>[ip,`${posts[ip]||'Sem nome'} · ${ip}`]),...(calls.some(c=>!c.origemIp)?[['unknown','Posto não registado']]:[])]){const opt=document.createElement('option');opt.value=value;opt.textContent=label;$('filterPost').append(opt);}
  if([...$('filterPost').options].some(o=>o.value===selected))$('filterPost').value=selected;
@@ -81,21 +85,22 @@ function renderPosts(){
  }
  if(!ips.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=3;td.textContent='Envie uma chamada de um posto para ver aqui o respetivo IP, ou adicione-o acima.';td.className='empty';tr.append(td);$('postLog').append(tr);}
 }
-function openSettings(){if(activeCall()){dismissed=activeCall().id;updateLive();}$('settingsDialog').showModal();}
+function openSettings(){if(postsDirty)renderPosts();if(activeCall()){dismissed=activeCall().id;updateLive();}$('settingsDialog').showModal();}
 function closeSettings(){if($('settingsDialog').open)$('settingsDialog').close();}
 function savePost(event){event.preventDefault();sendPost('configurar-posto',$('postIp').value.trim(),$('postName').value.trim());}
-function sendPost(tipo,ip,nome){if(!online||!ready||request){error('Aguarde a ligação e a confirmação antes de tentar novamente.');return;}request={tipo,ip,nome,pedidoId:uuid()};$('postFeedback').textContent='A guardar…';ws.send(JSON.stringify(request));updateLive();}
+function transmitRequest(){clearTimeout(requestTimer);if(!request||!ws||ws.readyState!==WebSocket.OPEN)return;ws.send(JSON.stringify(request));const id=request.pedidoId;requestTimer=setTimeout(()=>{if(request?.pedidoId===id&&ws.readyState===WebSocket.OPEN)ws.close();},12000);}
+function sendPost(tipo,ip,nome){if(!online||!ready||request){error('Aguarde a ligação e a confirmação antes de tentar novamente.');return;}request={tipo,ip,nome,pedidoId:uuid()};$('postFeedback').textContent='A guardar…';transmitRequest();updateLive();}
 function error(message){ $('error').textContent=message; $('error').classList.toggle('hidden',!message); }
 function connect(){
  if(location.protocol==='file:'){ error('Abra este ficheiro através do servidor (http://localhost:3000) ou use a aplicação instalada.');return; }
  ws=new WebSocket(`${location.protocol==='https:'?'wss:':'ws:'}//${location.host}`);
  ws.onopen=()=>{online=true;ready=false; updateConnection();};
- ws.onmessage=e=>{try{const m=JSON.parse(e.data);
-  if(m.tipo==='estado'||m.tipo==='atualizacao'){ calls=m.dados.chamadas;posts=m.dados.postos||{};ready=true;render(); if(m.tipo==='estado'&&request) ws.send(JSON.stringify(request)); }
-  if(m.tipo==='confirmacao'&&request?.pedidoId===m.pedidoId){if(['configurar-posto','remover-posto'].includes(request.tipo))$('postFeedback').textContent='Associação atualizada.';request=null;error('');render();}
-  if(m.tipo==='erro'){if(m.pedidoId===request?.pedidoId){request=null;$('postFeedback').textContent='Não foi possível guardar.';}error(m.mensagem);render();}
+ ws.onmessage=e=>{try{const m=JSON.parse(e.data);const initialState=m.tipo==='estado'&&!ready;if(m.ipCliente)myIp=m.ipCliente;
+  if(m.tipo==='estado'||m.tipo==='atualizacao'){ calls=m.dados.chamadas;posts=m.dados.postos||{};ready=true;render(); if(initialState&&request) transmitRequest(); }
+  if(m.tipo==='confirmacao'&&request?.pedidoId===m.pedidoId){clearTimeout(requestTimer);if(['configurar-posto','remover-posto'].includes(request.tipo))$('postFeedback').textContent='Associação atualizada.';request=null;error('');updateLive();}
+  if(m.tipo==='erro'){if(m.pedidoId===request?.pedidoId){clearTimeout(requestTimer);request=null;$('postFeedback').textContent='Não foi possível guardar.';}error(m.mensagem);render();}
  }catch{error('Resposta inválida do servidor.');}};
- ws.onclose=()=>{online=false;ready=false;updateConnection();updateLive();setTimeout(connect,3000);};
+ ws.onclose=()=>{clearTimeout(requestTimer);online=false;ready=false;updateConnection();updateLive();setTimeout(connect,3000);};
  ws.onerror=()=>{};
 }
 function updateConnection(){ $('connection').textContent=online&&ready?'Ligado':'Sem ligação'; $('connection').className=`badge ${online&&ready?'online':'offline'}`; }
@@ -104,16 +109,17 @@ function changeRole(){closeSettings();role=null;try{sessionStorage.removeItem('p
 function send(tipo){
  if(!online||!ready||request){error('Aguarde a ligação e a confirmação antes de tentar novamente.');return;}
  const active=activeCall();if(tipo==='chamar'&&active)return;if(tipo==='atendido'&&!active)return;
- request={tipo,pedidoId:uuid(),chamadaId:active?.id};ws.send(JSON.stringify(request));updateLive();
+ request={tipo,pedidoId:uuid(),chamadaId:active?.id};transmitRequest();updateLive();
 }
 function uuid(){if(crypto.randomUUID)return crypto.randomUUID();const b=crypto.getRandomValues(new Uint8Array(16));return Array.from(b,x=>x.toString(16).padStart(2,'0')).join('');}
 function resolveCall(){send('atendido');}
 function dismissAlert(){dismissed=activeCall()?.id;updateLive();}
-function filtered(){const from=$('from').value,to=$('to').value,status=$('filterStatus').value,post=$('filterPost').value,search=$('search').value.trim().toLowerCase();return calls.filter(c=>{const day=localDay(new Date(c.horaChamada));return (!from||day>=from)&&(!to||day<=to)&&(status==='all'||(status==='resolved'?c.resolvida:!c.resolvida))&&(post==='all'||(post==='unknown'?!c.origemIp:c.origemIp===post))&&c.id.toLowerCase().includes(search);});}
+function filtered(){const from=$('from').value,to=$('to').value,status=$('filterStatus').value,post=$('filterPost').value,search=$('search').value.trim().toLowerCase();return calls.filter(c=>{const day=callDay(c);return (!from||day>=from)&&(!to||day<=to)&&(status==='all'||(status==='resolved'?c.resolvida:!c.resolvida))&&(post==='all'||(post==='unknown'?!c.origemIp:c.origemIp===post))&&c.id.toLowerCase().includes(search);});}
 function filterChanged(){page=1;renderLog();}
 function resetFilters(){for(const id of ['from','to','search'])$(id).value='';$('filterStatus').value='all';$('filterPost').value='all';filterChanged();}
 function turnPage(delta){page+=delta;renderLog();}
 function renderLog(){
+ historyDirty=false;
  const rows=filtered(),resolved=rows.filter(c=>c.resolvida),times=resolved.map(duration),pages=Math.max(1,Math.ceil(rows.length/PAGE_SIZE));page=Math.min(Math.max(page,1),pages);
  $('total').textContent=rows.length;$('pending').textContent=rows.length-resolved.length;$('average').textContent=times.length?time(times.reduce((a,b)=>a+b,0)/times.length):'—';$('maximum').textContent=times.length?time(times.reduce((a,b)=>Math.max(a,b),0)):'—';
  $('filterInfo').textContent=$('from').value&&$('to').value&&$('from').value>$('to').value?'A data inicial deve ser anterior à data final.':`${rows.length} de ${calls.length} chamadas · Horário de Lisboa`;
@@ -128,11 +134,13 @@ function renderLog(){
 function renderChart(rows){
  const end=$('to').value?new Date($('to').value+'T12:00:00Z'):new Date(),days=[];
  for(let i=6;i>=0;i--){const d=new Date(end);d.setDate(d.getDate()-i);days.push({day:localDay(d),label:d.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit'}),count:0});}
- const counts=new Map(days.map(d=>[d.day,d]));for(const c of rows){const d=counts.get(localDay(new Date(c.horaChamada)));if(d)d.count++;}
+ const counts=new Map(days.map(d=>[d.day,d]));for(const c of rows){const d=counts.get(callDay(c));if(d)d.count++;}
  const max=days.reduce((m,d)=>Math.max(m,d.count),1);$('chart').replaceChildren();for(const d of days){const bar=document.createElement('div');bar.className='bar';bar.title=`${d.label}: ${d.count} chamadas`;const n=document.createElement('span');n.textContent=d.count;const b=document.createElement('i');b.style.height=`${Math.max(2,d.count/max*55)}px`;const l=document.createElement('span');l.textContent=d.label;bar.append(n,b,l);$('chart').append(bar);}
 }
 function download(name,data,type){const url=URL.createObjectURL(new Blob([data],{type})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
-function exportRows(rows,name,folha){try{const data=FariaExcel.criarXls({chamadas:rows,postos:posts,folha});download(name,data,'application/vnd.ms-excel');}catch{error('Não foi possível exportar o ficheiro Excel. Atualize a página e tente novamente.');}}
+function loadScript(src){return new Promise((resolve,reject)=>{const script=document.createElement('script');script.src=src;script.onload=resolve;script.onerror=()=>{script.remove();reject(new Error('Biblioteca indisponível'));};document.head.append(script);});}
+async function ensureExcel(){if(window.FariaExcel)return;if(!excelReady)excelReady=(async()=>{if(!window.XLSX)await loadScript('vendor/xlsx.full.min.js');await loadScript('excel-export.js');})().catch(e=>{excelReady=null;throw e;});return excelReady;}
+async function exportRows(rows,name,folha){if(exportBusy)return;exportBusy=true;$('todayExportButton').disabled=true;$('historyExportButton').disabled=true;$('exportInfo').textContent='A preparar o ficheiro Excel…';try{await ensureExcel();const data=FariaExcel.criarXls({chamadas:rows,postos:posts,folha});download(name,data,'application/vnd.ms-excel');$('exportInfo').textContent='Ficheiro Excel preparado. Consulte as transferências.';}catch{error('Não foi possível exportar o ficheiro Excel. Confirme a ligação e tente novamente.');$('exportInfo').textContent='';}finally{exportBusy=false;$('todayExportButton').disabled=false;$('historyExportButton').disabled=false;}}
 function exportXLS(){exportRows(filtered(),`faria-historico-${localDay(new Date())}.xls`,'Histórico');}
 function exportTodayXLS(){exportRows(todayCalls(),`faria-hoje-${localDay(new Date())}.xls`,'Hoje');}
 function exportBackup(){download(`chamadas-backup-${localDay(new Date())}.json`,JSON.stringify({versao:1,chamadas:calls,postos:posts},null,2),'application/json');}
@@ -144,7 +152,7 @@ function beep(){if(!sound||!audio)return;const o=audio.createOscillator(),g=audi
 async function enableNotifications(){if(!('Notification'in window)){error('Notificações não disponíveis. Utilize a aplicação instalada.');return;}try{const p=await Notification.requestPermission();$('notificationButton').textContent=p==='granted'?'Notificações ativas':'Notificações bloqueadas';}catch{error('Use localhost, HTTPS ou a aplicação instalada para ativar notificações.');}}
 function updateLive(){
  const c=activeCall(),allowed=online&&ready&&!request;
- $('callButton').disabled=!allowed||!!c;$('callButton').textContent=request?'A confirmar…':c?'Chamada enviada · A aguardar':'Chamar atendimento';$('callerStatus').textContent=c?`À espera há ${time(duration(c))}`:'';
+ $('callButton').disabled=!allowed||!!c;$('callButton').textContent=request?'A confirmar…':c?(c.origemIp===myIp?'Chamada enviada · A aguardar':'Atendimento em curso'):'Chamar atendimento';$('callerStatus').textContent=c?(c.origemIp===myIp?`A sua chamada está à espera há ${time(duration(c))}`:'Já existe uma chamada pendente. Aguarde que seja atendida para enviar outra.') : '';
  $('statusCard').classList.toggle('active',!!c);$('statusTitle').textContent=c?'Há uma chamada à espera.':'Pronto para atender';$('serviceDescription').textContent=c?`${origin(c)}${c.origemIp?' · '+c.origemIp:''}${localDay(new Date(c.horaChamada))!==localDay(new Date())?' · Pendente de um dia anterior':''}`:'Sem chamadas pendentes. Estamos disponíveis.';$('wait').textContent=c?timer(duration(c)):'';$('resolveButton').classList.toggle('hidden',!c);$('resolveButton').disabled=!allowed;$('savePostButton').disabled=!allowed;$('alertResolve').disabled=!allowed;
  const show=c&&role==='backoffice'&&dismissed!==c.id;$('alert').classList.toggle('hidden',!show);if(c)$('alertTimer').textContent=timer(duration(c));
  document.title=c&&role==='backoffice'?`☎ Chamada · ${timer(duration(c))}`:'Farmácia Faria · Atendimento';
@@ -155,12 +163,13 @@ function updateLive(){
 }
 async function loadStartup(){if(!window.desktopSettings)return;try{$('startupToggle').checked=await window.desktopSettings.getStartup();$('startupSettings').classList.remove('hidden');}catch{error('Não foi possível consultar o arranque automático. Use o menu do ícone junto ao relógio.');}}
 async function setStartup(value){$('startupToggle').disabled=true;try{const enabled=await window.desktopSettings.setStartup(value);$('startupToggle').checked=enabled;$('startupInfo').textContent=enabled?'Ativo: a aplicação abrirá depois de iniciar sessão no Windows.':'Desativado: abra a aplicação manualmente.';}catch{$('startupToggle').checked=!value;error('Não foi possível alterar o arranque automático.');}finally{$('startupToggle').disabled=false;}}
-function render(){renderPosts();updateConnection();updateLive();renderToday();renderLog();}
+function render(){activeCached=calls.find(c=>!c.resolvida)||null;historyDirty=true;postsDirty=true;updateConnection();updateLive();renderToday();if(role==='backoffice'&&($('analysisPanel').open||$('settingsDialog').open))renderPosts();if(role==='backoffice'&&$('analysisPanel').open)renderLog();}
+$('analysisPanel').addEventListener('toggle',()=>{if($('analysisPanel').open&&historyDirty){if(postsDirty)renderPosts();renderLog();}});
 $('backgroundHint').textContent=window.desktopApp?'Pode fechar a janela: uma chamada volta a abrir o alerta.':'Mantenha este navegador aberto para receber chamadas.';if(window.desktopApp){$('notificationButton').classList.add('hidden');$('settingsNotifications').classList.add('hidden');}
 try{const saved=sessionStorage.getItem('posto');if(saved==='colaborador'||saved==='backoffice')choose(saved);}catch{}
 if(window.desktopApp){choose('backoffice');loadStartup();}
-function tick(){updateLive();if(localDay(new Date())!==lastDay){todayPage=1;renderToday();renderLog();}const active=activeCall();for(const el of document.querySelectorAll('[data-waiting]'))if(active&&el.dataset.waiting===active.id)el.textContent=time(duration(active));}
-renderToday();connect();setInterval(tick,1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){renderToday();renderLog();updateLive();}});
+function tick(){if(activeCall()||request)updateLive();if(localDay(new Date())!==lastDay){todayPage=1;renderToday();historyDirty=true;if($('analysisPanel').open)renderLog();}const active=activeCall();for(const el of document.querySelectorAll('[data-waiting]'))if(active&&el.dataset.waiting===active.id)el.textContent=time(duration(active));}
+renderToday();connect();setInterval(tick,1000);document.addEventListener('visibilitychange',()=>{if(!document.hidden){renderToday();if($('analysisPanel').open&&historyDirty)renderLog();updateLive();}});
 
 </script>
 </body>

@@ -7,7 +7,7 @@ const path = require('node:path');
 const { randomUUID } = require('node:crypto');
 const { EventEmitter } = require('node:events');
 const { isIP } = require('node:net');
-function normalizarIp(ip) { return String(ip || '').replace(/^::ffff:/i, '').split('%')[0].toLowerCase(); }
+function normalizarIp(ip) { return String(ip || '').trim().replace(/^::ffff:/i, '').split('%')[0].toLowerCase(); }
 
 // Call changes are committed to disk before they are acknowledged or broadcast.
 function criarServidor({ porta = 3000, host = '0.0.0.0', pastaDados = path.join(__dirname, 'dados') } = {}) {
@@ -18,19 +18,25 @@ function criarServidor({ porta = 3000, host = '0.0.0.0', pastaDados = path.join(
     if (fs.existsSync(ficheiro)) {
         const saved = JSON.parse(fs.readFileSync(ficheiro, 'utf8'));
         if (saved.versao !== 1 || !Array.isArray(saved.chamadas)) throw new Error('Histórico inválido. Preserve o ficheiro e restaure uma cópia de segurança.');
-        chamadas = saved.chamadas;
+        if (saved.chamadas.some(c => !c || !['string', 'number'].includes(typeof c.id) || !String(c.id) || typeof c.resolvida !== 'boolean' || !Number.isFinite(Date.parse(c.horaChamada)) || (c.resolvida && !Number.isFinite(Date.parse(c.horaResolucao))) || (c.origemIp != null && (typeof c.origemIp !== 'string' || !isIP(c.origemIp))) || (c.origemNome != null && typeof c.origemNome !== 'string'))) throw new Error('Histórico inválido. Preserve o ficheiro e restaure uma cópia de segurança.');
+        chamadas = saved.chamadas.map(c => ({ ...c, id: String(c.id) }));
         if (saved.postos && typeof saved.postos === 'object' && !Array.isArray(saved.postos)) {
             for (const [ip, nome] of Object.entries(saved.postos)) {
-                if (isIP(ip) && typeof nome === 'string' && nome.trim().length <= 60) postos[normalizarIp(ip)] = nome.trim();
+                if (isIP(ip) && typeof nome === 'string' && nome.trim().length > 0 && nome.trim().length <= 60) postos[normalizarIp(ip)] = nome.trim();
             }
         }
     }
+    let pendente = chamadas.find(c => !c.resolvida);
+    const pedidos = new Set(chamadas.map(c => c.pedidoId).filter(Boolean));
+    let snapshot, closing;
     const eventos = new EventEmitter();
     const app = express();
     const server = http.createServer(app);
+    const sockets = new Set();
+    server.on('connection', socket => { sockets.add(socket);socket.on('close', () => sockets.delete(socket)); });
     const wss = new WebSocketServer({ server, maxPayload: 4096 });
     const estado = () => {
-        const ativa = chamadas.find(c => !c.resolvida);
+        const ativa = pendente;
         return { chamadas, postos, chamadaAtiva: Boolean(ativa), horaInicioChamada: ativa ? Date.parse(ativa.horaChamada) : null };
     };
     function guardar(novas, novosPostos = postos) {
@@ -41,9 +47,15 @@ function criarServidor({ porta = 3000, host = '0.0.0.0', pastaDados = path.join(
         fs.renameSync(tmp, ficheiro);
         chamadas = novas;
         postos = novosPostos;
+        pendente = chamadas.find(c => !c.resolvida);
+        snapshot = undefined;
     }
     function enviar(ws, mensagem) { if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(mensagem)); }
-    function transmitir() { for (const ws of wss.clients) enviar(ws, { tipo: 'atualizacao', dados: estado() }); }
+    function transmitir() {
+        // One serialization per committed revision, shared by every connected workstation.
+        snapshot ||= JSON.stringify({ tipo: 'atualizacao', dados: estado() });
+        for (const ws of wss.clients) if (ws.readyState === WebSocket.OPEN) ws.send(snapshot);
+    }
     app.disable('x-powered-by');
     app.get('/', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'sistema-chamadas-cliente.html')));
     app.use(express.static(path.join(__dirname, 'public')));
@@ -53,22 +65,22 @@ function criarServidor({ porta = 3000, host = '0.0.0.0', pastaDados = path.join(
         const origemIp = normalizarIp(req.socket.remoteAddress);
         ws.vivo = true;
         ws.on('pong', () => { ws.vivo = true; });
-        enviar(ws, { tipo: 'estado', dados: estado() });
+        enviar(ws, { tipo: 'estado', dados: estado(), ipCliente: origemIp });
         ws.on('message', raw => {
             let msg;
             try {
                 msg = JSON.parse(raw.toString());
-                if (!msg || !['chamar', 'atendido', 'configurar-posto', 'remover-posto'].includes(msg.tipo) || typeof msg.pedidoId !== 'string' || msg.pedidoId.length > 80) throw new Error('Pedido inválido.');
-                const ativa = chamadas.find(c => !c.resolvida);
-                let nova;
+                if (!msg || !['chamar', 'atendido', 'configurar-posto', 'remover-posto'].includes(msg.tipo) || typeof msg.pedidoId !== 'string' || !msg.pedidoId.trim() || msg.pedidoId.length > 80) throw new Error('Pedido inválido.');
+                const ativa = pendente;
+                let nova, mudou = false;
                 if (msg.tipo === 'chamar') {
                     // Retries cannot create duplicate calls, even after a restart.
-                    if (!chamadas.some(c => c.pedidoId === msg.pedidoId) && !ativa) {
+                    if (!pedidos.has(msg.pedidoId) && !ativa) {
                         nova = { id: randomUUID(), pedidoId: msg.pedidoId, horaChamada: new Date().toISOString(), resolvida: false, horaResolucao: null, origemIp, origemNome: postos[origemIp] || null };
-                        guardar([nova, ...chamadas]);
+                        guardar([nova, ...chamadas]);pedidos.add(msg.pedidoId);mudou = true;
                     }
                 } else if (msg.tipo === 'atendido' && ativa && msg.chamadaId === ativa.id) {
-                    guardar(chamadas.map(c => c.id === ativa.id ? { ...c, resolvida: true, horaResolucao: new Date().toISOString() } : c));
+                    guardar(chamadas.map(c => c.id === ativa.id ? { ...c, resolvida: true, horaResolucao: new Date().toISOString() } : c));mudou = true;
                 }
                 if (msg.tipo === 'configurar-posto' || msg.tipo === 'remover-posto') {
                     const ip = normalizarIp(msg.ip);
@@ -78,12 +90,12 @@ function criarServidor({ porta = 3000, host = '0.0.0.0', pastaDados = path.join(
                         if (typeof msg.nome !== 'string' || !msg.nome.trim() || msg.nome.trim().length > 60) throw new Error('Nome inválido (máximo 60 caracteres).');
                         novosPostos[ip] = msg.nome.trim();
                     } else delete novosPostos[ip];
-                    guardar(chamadas, novosPostos);
+                    if (JSON.stringify(novosPostos) !== JSON.stringify(postos)) { guardar(chamadas, novosPostos);mudou = true; }
                 }
-                transmitir();
+                if (mudou) transmitir();else enviar(ws, { tipo: 'estado', dados: estado(), ipCliente: origemIp });
                 enviar(ws, { tipo: 'confirmacao', pedidoId: msg.pedidoId });
                 if (nova) eventos.emit('chamada', nova);
-                eventos.emit('estado', estado());
+                if (mudou) eventos.emit('estado', estado());
             } catch (erro) {
                 enviar(ws, { tipo: 'erro', pedidoId: msg?.pedidoId, mensagem: ['Endereço IP inválido.', 'Nome inválido (máximo 60 caracteres).'].includes(erro.message) ? erro.message : 'Não foi possível guardar a alteração. Verifique o disco e tente novamente.' });
                 console.error('Pedido recusado:', erro.message);
@@ -104,7 +116,7 @@ function criarServidor({ porta = 3000, host = '0.0.0.0', pastaDados = path.join(
             server.once('error', reject);
             server.listen(porta, host, () => { server.removeListener('error', reject); resolve(server.address().port); });
         }),
-        fechar: () => new Promise(resolve => { clearInterval(heartbeat); for (const ws of wss.clients) ws.terminate(); wss.close(() => server.close(resolve)); })
+        fechar: () => { if (!closing) closing = new Promise(resolve => { clearInterval(heartbeat);for (const ws of wss.clients) ws.terminate();for (const socket of sockets) socket.destroy();wss.close(() => server.close(() => resolve())); });return closing; }
     };
 }
 module.exports = { criarServidor };

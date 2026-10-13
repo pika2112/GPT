@@ -53,3 +53,21 @@ test('socket IP is authentic; aliases persist and do not change the historical r
  assert.equal(s.estado().postos['127.0.0.1'],'Marcelo');assert.equal(s.estado().chamadas[0].id,callId);const port=await s.iniciar();
  const b=await connect(port);await b.next('estado');b.ws.send(JSON.stringify({tipo:'remover-posto',ip:'127.0.0.1',pedidoId:'remove'}));await b.next('confirmacao');assert.equal(s.estado().postos['127.0.0.1'],undefined);assert.equal(s.estado().chamadas[0].origemNome,'Marcelo');
 });
+
+test('duplicate requests acknowledge the sender without rebroadcasting or retriggering an alarm',async t=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'no-op-')),s=criarServidor({porta:0,host:'127.0.0.1',pastaDados:dir});
+ t.after(async()=>{await s.fechar();fs.rmSync(dir,{recursive:true,force:true});});
+ const a=await connect(await s.iniciar());await a.next('estado');let alarms=0;s.eventos.on('chamada',()=>alarms++);
+ a.ws.send(JSON.stringify({tipo:'chamar',pedidoId:'repeat'}));await a.next('atualizacao');await a.next('confirmacao');
+ a.ws.send(JSON.stringify({tipo:'chamar',pedidoId:'repeat'}));await a.next('estado');await a.next('confirmacao');
+ assert.equal(alarms,1);assert.equal(s.estado().chamadas.length,1);
+});
+test('closing releases HTTP keep-alive sockets and is safe to repeat',async()=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'closing-')),s=criarServidor({porta:0,host:'127.0.0.1',pastaDados:dir});
+ const port=await s.iniciar();await fetch(`http://127.0.0.1:${port}/`);
+ await Promise.race([Promise.all([s.fechar(),s.fechar()]),new Promise((_,reject)=>{const t=setTimeout(()=>reject(Error('Shutdown blocked by keep-alive')),1000);t.unref();})]);fs.rmSync(dir,{recursive:true,force:true});
+});
+test('invalid records are refused without overwriting the history file',()=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'invalid-')),p=path.join(dir,'chamadas.json');
+ try{const text=JSON.stringify({versao:1,chamadas:[{id:'old',resolvida:false,horaChamada:'invalid'}]});fs.writeFileSync(p,text);assert.throws(()=>criarServidor({pastaDados:dir}),/Histórico inválido/);assert.equal(fs.readFileSync(p,'utf8'),text);}finally{fs.rmSync(dir,{recursive:true,force:true});}
+});

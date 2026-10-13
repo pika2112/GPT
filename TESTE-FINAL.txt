@@ -1,0 +1,19 @@
+FARMÁCIA FARIA 2.0.5 — TESTE FINAL NA REDE REAL
+Leia a página 10 do Manual-Farmacia-Faria-2.0.5.pdf.
+Faça primeiro uma cópia JSON e anote a contagem: os testes criam registos reais.
+
+[ ] 1. Arrancar pelo Iniciar.cmd; confirmar versão, histórico e IP.
+[ ] 2. Abrir http://10.21.225.7:3000 em dois postos, no modo Colaborador.
+[ ] 3. Chamar no primeiro posto: alerta vermelho, nome correto, um registo.
+[ ] 4. Segundo posto vê atendimento em curso; não cria outra chamada.
+[ ] 5. Marcar Atendido; chamar no segundo posto e confirmar o nome.
+[ ] 6. Fechar a janela com X; nova chamada volta a abri-la pela área de notificação.
+[ ] 7. Ativar som e confirmar os avisos no PC real.
+[ ] 8. Abrir o XLS no Excel e conferir datas, postos e espera.
+[ ] 9. Descarregar a cópia JSON em Definições.
+[ ] 10. Reiniciar a aplicação com chamada pendente e confirmar a recuperação.
+[ ] 11. Parar e reabrir o serviço; confirmar reconexão dos postos sem duplicados.
+[ ] 12. Ativar arranque automático; reiniciar o Windows e iniciar sessão.
+
+Data: __________  Responsável: __________  Resultado: __________
+Não dar o teste como concluído se algum passo falhar.

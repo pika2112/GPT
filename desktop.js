@@ -52,12 +52,14 @@ function menu() {
     ]));
 }
 function notificar() {
-    if (!servico?.estado().chamadaAtiva) return;
+    const dados = servico?.estado();
+    if (!dados?.chamadaAtiva) return;
+    const chamada = dados.chamadas.find(c => !c.resolvida);
     mostrar(); janela.flashFrame(true);
     try {
         if (Notification.isSupported()) {
             alerta?.close();
-            alerta = new Notification({ title: 'Farmácia Faria · Atendimento', body: `${servico.estado().postos?.[servico.estado().chamadas[0].origemIp] || servico.estado().chamadas[0].origemNome || servico.estado().chamadas[0].origemIp || 'Um posto'} está à espera.`, silent: false, timeoutType: 'never' });
+            alerta = new Notification({ title: 'Farmácia Faria · Atendimento', body: `${dados.postos?.[chamada?.origemIp] || chamada?.origemNome || chamada?.origemIp || 'Um posto'} está à espera.`, silent: false, timeoutType: 'never' });
             alerta.on('click', mostrar); alerta.show();
         }
     } catch (erro) { registar(`Notificação indisponível: ${erro.message}`); }

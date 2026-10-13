@@ -1,4 +1,18 @@
-Validated: four automated checks covering server persistence, duplicate/stale actions, disk errors, corrupted data and tray/window lifecycle logic.
-Browser checks: two clients, live alerts, resolution, filters, CSV, JSON, pagination and a 390px mobile layout, with no JavaScript errors.
-Windows standalone executable built on Linux. Native Windows notification, firewall, startup and focus behavior have not been tested on a Windows PC.
-Executable is unsigned. Keep the Back Office PC awake and the app running in the system tray.
+Farmácia Faria 2.0.5 — validation scope
+14 Node automated tests: persistence, duplicate/stale actions, no-op broadcasts,
+invalid history preservation, socket shutdown, disk errors, startup-log rotation,
+desktop lifecycle/startup and genuine BIFF8 XLS bytes including multiple sheets.
+Browser regression: today and lazy history, real XLS and JSON downloads, IP names,
+lost-ACK retry without duplicates, caller ownership, midnight pending call and mobile layout.
+Windows packaging workflow runs all unit tests and the real packaged Electron desktop
+smoke test (startup, preload, tray, call, names, resolution, deferred history and XLS).
+Publication is gated on that workflow succeeding. Windows 8 itself is not tested in CI.
+
+Synthetic performance comparison: median of 7 warmed renders with 10,000 in-memory
+historic calls and history closed, same headless Chromium: 2.0.4 = 81.5 ms;
+2.0.5 = 1.1 ms. Excludes network, initial startup and disk; not an end-to-end speed claim.
+Manual: 10-page tagged PDF with links, bookmarks and visually checked layouts.
+
+Final on-site validation remains required: real Windows 8 machine, firewall, two staff
+computers, sound, native notifications/focus, real reboot/login and Excel installed there.
+Use TESTE-FINAL.txt or page 10 of the manual. Executable is unsigned.
