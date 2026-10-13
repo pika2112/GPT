@@ -1,0 +1,4 @@
+Validated: four automated checks covering server persistence, duplicate/stale actions, disk errors, corrupted data and tray/window lifecycle logic.
+Browser checks: two clients, live alerts, resolution, filters, CSV, JSON, pagination and a 390px mobile layout, with no JavaScript errors.
+Windows standalone executable built on Linux. Native Windows notification, firewall, startup and focus behavior have not been tested on a Windows PC.
+Executable is unsigned. Keep the Back Office PC awake and the app running in the system tray.

@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sistema de Chamadas</title>
+<style>
+:root{font-family:Segoe UI,system-ui,sans-serif;color:#203147;background:#f1f4f8;font-size:16px}*{box-sizing:border-box}body{margin:0}header{background:#172d49;color:white;padding:24px max(24px,calc((100vw - 1200px)/2));display:flex;gap:20px;align-items:center;justify-content:space-between}h1{font-size:24px;margin:0 0 5px}h2{font-size:20px;margin:0 0 18px}p{line-height:1.6}header p{margin:0;color:#b8cce4;font-size:14px}main{max-width:1200px;margin:28px auto;padding:0 20px}.card{background:white;border:1px solid #dce3ed;border-radius:14px;padding:24px;margin-bottom:20px}.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.between{justify-content:space-between}button,.button{font:inherit;border:1px solid #c9d4e2;border-radius:8px;padding:10px 16px;background:white;color:#203147;cursor:pointer}button:hover{background:#edf3fb}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #79aaff;outline-offset:2px}button:disabled{opacity:.5;cursor:default}.primary{background:#235dcc;border-color:#235dcc;color:white}.primary:hover{background:#184cab}.call{padding:30px;font-size:24px;font-weight:650;width:100%}.badge{border-radius:30px;padding:6px 12px;background:#435772;color:white;font-size:13px}.online{background:#166b52}.offline{background:#a33838}.muted{color:#61738a;font-size:14px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0}.stat{padding:18px;background:#f4f7fb;border-radius:10px}.stat strong{display:block;font-size:27px;margin-top:6px}.filters{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:20px 0}label{display:block;font-size:13px;color:#61738a}input,select{font:inherit;width:100%;padding:10px;margin-top:6px;border:1px solid #c9d4e2;border-radius:7px;background:white;color:#203147}.table-wrap{overflow:auto}table{width:100%;border-collapse:collapse;white-space:nowrap;font-size:14px}th,td{text-align:left;padding:14px 12px;border-bottom:1px solid #e4eaf2}th{color:#61738a;font-weight:600;background:#f6f8fb}td .tag{border-radius:20px;padding:4px 9px;font-size:12px;background:#e0f2e9;color:#166b52}.tag.pending{background:#fff0cf;color:#8a5900}.pagination{margin-top:18px}.selection{max-width:600px;margin:70px auto;text-align:center}.selection button{padding:24px;flex:1}.hidden{display:none!important}.error{padding:14px;background:#fff0ef;color:#9c3030;border-radius:8px;margin-bottom:18px}.active{background:#fff5df;border-color:#f1c26d}.timer{font-size:48px;font-variant-numeric:tabular-nums}.alert{position:fixed;inset:0;background:#902f36f5;z-index:10;color:white;display:flex;align-items:center;justify-content:center;text-align:center;padding:20px}.alert .timer{font-size:clamp(64px,12vw,130px)}.alert h2{font-size:30px}.alert button{margin:20px 8px}.alert p{color:#ffe0e0}a{color:#235dcc}.hint{background:#edf3fb;padding:14px;border-radius:8px}.mini-bars{display:flex;gap:8px;align-items:end;height:90px;margin-top:12px}.bar{flex:1;text-align:center;color:#61738a;font-size:11px}.bar i{display:block;background:#4279d6;border-radius:4px 4px 0 0;margin:0 auto 5px;min-height:2px;width:80%}footer{font-size:13px;color:#61738a;margin-top:16px}@media(max-width:720px){header{padding:20px;align-items:start;flex-direction:column}.stats,.filters{grid-template-columns:1fr 1fr}.card{padding:18px}.selection .row{flex-direction:column}.selection button{width:100%}}@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<header><div><h1>☎ Sistema de Chamadas</h1><p>Atendimento da loja · Histórico e tempos de resposta</p></div><span id="connection" class="badge offline" role="status">A ligar…</span></header>
+<main>
+<div id="error" class="error hidden" role="alert"></div>
+<section id="selection" class="card selection"><h2>Como vai utilizar o sistema?</h2><p class="muted">Escolha o posto de trabalho.</p><div class="row"><button onclick="choose('colaborador')">Colaborador<br><small>Chamar atendimento</small></button><button onclick="choose('backoffice')">Back Office<br><small>Receber e analisar chamadas</small></button></div></section>
+<div id="workspace" class="hidden">
+<div class="row between" style="margin-bottom:18px"><strong id="roleName"></strong><button onclick="changeRole()">Mudar de posto</button></div>
+<section id="caller" class="card hidden"><h2>Precisa de atendimento?</h2><p class="muted">A chamada é enviada ao Back Office e guardada no histórico.</p><button id="callButton" class="primary call" onclick="send('chamar')">Chamar atendimento</button><p id="callerStatus" role="status"></p></section>
+<div id="office" class="hidden">
+<section id="statusCard" class="card"><div class="row between"><div><h2 id="statusTitle">Atendimento disponível</h2><div id="wait" class="timer">—</div></div><div class="row"><button id="resolveButton" class="primary hidden" onclick="resolveCall()">Marcar como atendido</button><button id="soundButton" onclick="toggleSound()">Ativar som</button><button id="notificationButton" onclick="enableNotifications()">Ativar notificações</button></div></div><p id="backgroundHint" class="muted"></p></section>
+<section class="card">
+<div class="row between"><div><h2 style="margin-bottom:4px">Histórico de chamadas</h2><span class="muted">Datas, estados e tempos de espera</span></div><div class="row"><button onclick="exportCSV()">Exportar CSV filtrado</button><button onclick="exportBackup()">Cópia JSON completa</button></div></div>
+<div class="filters"><label>Data inicial<input type="date" id="from" onchange="filterChanged()"></label><label>Data final<input type="date" id="to" onchange="filterChanged()"></label><label>Estado<select id="filterStatus" onchange="filterChanged()"><option value="all">Todos</option><option value="pending">Por atender</option><option value="resolved">Atendidas</option></select></label><label>Pesquisar ID<input type="search" id="search" placeholder="ID da chamada" oninput="filterChanged()"></label></div>
+<div class="row between"><span id="filterInfo" class="muted"></span><button onclick="resetFilters()">Limpar filtros</button></div>
+<div class="stats"><div class="stat"><span class="muted">Chamadas</span><strong id="total">0</strong></div><div class="stat"><span class="muted">Por atender</span><strong id="pending">0</strong></div><div class="stat"><span class="muted">Espera média¹</span><strong id="average">—</strong></div><div class="stat"><span class="muted">Maior espera¹</span><strong id="maximum">—</strong></div></div>
+<p class="muted">Chamadas por dia · últimos 7 dias do período selecionado</p><div id="chart" class="mini-bars" aria-label="Chamadas por dia"></div>
+<p class="muted">¹ Calculada apenas nas chamadas atendidas, dentro dos filtros selecionados.</p>
+<div class="table-wrap"><table><thead><tr><th>ID</th><th>Data / hora da chamada</th><th>Atendida em</th><th>Espera</th><th>Estado</th></tr></thead><tbody id="log"></tbody></table></div>
+<div class="row between pagination"><span id="pageInfo" class="muted"></span><div class="row"><button id="prev" onclick="turnPage(-1)">Anterior</button><button id="next" onclick="turnPage(1)">Seguinte</button></div></div>
+<footer>O histórico é guardado no computador principal. A exportação CSV usa ponto e vírgula e UTF-8 para abrir no Excel.</footer>
+</section>
+</div>
+</div>
+</main>
+<div id="alert" class="alert hidden" role="dialog" aria-modal="true" aria-labelledby="alertTitle"><div><h2 id="alertTitle">Atendimento necessário</h2><div id="alertTimer" class="timer">00:00</div><p>A chamada fica pendente até ser atendida.</p><button id="alertResolve" onclick="resolveCall()">ATENDIDO</button><button onclick="dismissAlert()">Ver histórico</button></div></div>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+let calls = [], role = null, ws, online = false, ready = false, request = null, page = 1, sound = false, audio, lastBeep = 0, notified = null, dismissed = null, notification;
+const PAGE_SIZE = 25;
+function activeCall(){ return calls.find(c => !c.resolvida); }
+function duration(c){ return Math.max(0,(c.resolvida ? Date.parse(c.horaResolucao) : Date.now()) - Date.parse(c.horaChamada)); }
+function time(ms){ const s=Math.floor(Math.max(0,ms)/1000);return s>=60 ? `${Math.floor(s/60)}m ${s%60}s` : `${s}s`; }
+function timer(ms){ const s=Math.floor(Math.max(0,ms)/1000);return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`; }
+function date(iso){ return iso ? new Date(iso).toLocaleString('pt-PT') : '—'; }
+function localDay(d){ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function error(message){ $('error').textContent=message; $('error').classList.toggle('hidden',!message); }
+function connect(){
+ if(location.protocol==='file:'){ error('Abra este ficheiro através do servidor (http://localhost:3000) ou use a aplicação instalada.');return; }
+ ws=new WebSocket(`${location.protocol==='https:'?'wss:':'ws:'}//${location.host}`);
+ ws.onopen=()=>{online=true;ready=false; updateConnection();};
+ ws.onmessage=e=>{try{const m=JSON.parse(e.data);
+  if(m.tipo==='estado'||m.tipo==='atualizacao'){ calls=m.dados.chamadas;ready=true;render(); if(m.tipo==='estado'&&request) ws.send(JSON.stringify(request)); }
+  if(m.tipo==='confirmacao'&&request?.pedidoId===m.pedidoId){request=null;error('');render();}
+  if(m.tipo==='erro'){if(m.pedidoId===request?.pedidoId) request=null;error(m.mensagem);render();}
+ }catch{error('Resposta inválida do servidor.');}};
+ ws.onclose=()=>{online=false;ready=false;updateConnection();updateLive();setTimeout(connect,3000);};
+ ws.onerror=()=>{};
+}
+function updateConnection(){ $('connection').textContent=online&&ready?'Ligado · Histórico guardado no servidor':'Sem ligação · A tentar novamente'; $('connection').className=`badge ${online&&ready?'online':'offline'}`; }
+function choose(value){role=value;try{sessionStorage.setItem('posto',role);}catch{} $('selection').classList.add('hidden');$('workspace').classList.remove('hidden');$('caller').classList.toggle('hidden',role!=='colaborador');$('office').classList.toggle('hidden',role!=='backoffice');$('roleName').textContent=role==='backoffice'?'Back Office':'Colaborador';render();}
+function changeRole(){role=null;try{sessionStorage.removeItem('posto');}catch{} $('selection').classList.remove('hidden');$('workspace').classList.add('hidden');updateLive();}
+function send(tipo){
+ if(!online||!ready||request){error('Aguarde a ligação e a confirmação antes de tentar novamente.');return;}
+ const active=activeCall();if(tipo==='chamar'&&active)return;if(tipo==='atendido'&&!active)return;
+ request={tipo,pedidoId:uuid(),chamadaId:active?.id};ws.send(JSON.stringify(request));updateLive();
+}
+function uuid(){if(crypto.randomUUID)return crypto.randomUUID();const b=crypto.getRandomValues(new Uint8Array(16));return Array.from(b,x=>x.toString(16).padStart(2,'0')).join('');}
+function resolveCall(){send('atendido');}
+function dismissAlert(){dismissed=activeCall()?.id;updateLive();}
+function filtered(){const from=$('from').value,to=$('to').value,status=$('filterStatus').value,search=$('search').value.trim().toLowerCase();return calls.filter(c=>{const day=localDay(new Date(c.horaChamada));return (!from||day>=from)&&(!to||day<=to)&&(status==='all'||(status==='resolved'?c.resolvida:!c.resolvida))&&c.id.toLowerCase().includes(search);});}
+function filterChanged(){page=1;renderLog();}
+function resetFilters(){for(const id of ['from','to','search'])$(id).value='';$('filterStatus').value='all';filterChanged();}
+function turnPage(delta){page+=delta;renderLog();}
+function renderLog(){
+ const rows=filtered(),resolved=rows.filter(c=>c.resolvida),times=resolved.map(duration),pages=Math.max(1,Math.ceil(rows.length/PAGE_SIZE));page=Math.min(Math.max(page,1),pages);
+ $('total').textContent=rows.length;$('pending').textContent=rows.length-resolved.length;$('average').textContent=times.length?time(times.reduce((a,b)=>a+b,0)/times.length):'—';$('maximum').textContent=times.length?time(times.reduce((a,b)=>Math.max(a,b),0)):'—';
+ $('filterInfo').textContent=$('from').value&&$('to').value&&$('from').value>$('to').value?'A data inicial deve ser anterior à data final.':`${rows.length} de ${calls.length} chamadas · Datas no fuso horário deste computador`;
+ $('log').replaceChildren();
+ for(const c of rows.slice((page-1)*PAGE_SIZE,page*PAGE_SIZE)){
+  const tr=document.createElement('tr');for(const value of [c.id.slice(0,8),date(c.horaChamada),date(c.horaResolucao),time(duration(c))]){const td=document.createElement('td');td.textContent=value;td.title=c.id;tr.append(td);}
+  const td=document.createElement('td'),tag=document.createElement('span');tag.className=`tag ${c.resolvida?'':'pending'}`;tag.textContent=c.resolvida?'Atendida':'Por atender';td.append(tag);tr.append(td);$('log').append(tr);
+ }
+ if(!rows.length){const tr=document.createElement('tr'),td=document.createElement('td');td.colSpan=5;td.textContent='Sem chamadas para estes filtros.';tr.append(td);$('log').append(tr);}
+ $('pageInfo').textContent=`Página ${page} de ${pages} · ${PAGE_SIZE} chamadas por página`;$('prev').disabled=page===1;$('next').disabled=page===pages;
+ renderChart(rows);
+}
+function renderChart(rows){
+ const end=$('to').value?new Date($('to').value+'T12:00:00'):new Date(),days=[];
+ for(let i=6;i>=0;i--){const d=new Date(end);d.setDate(d.getDate()-i);days.push({day:localDay(d),label:d.toLocaleDateString('pt-PT',{day:'2-digit',month:'2-digit'}),count:0});}
+ const counts=new Map(days.map(d=>[d.day,d]));for(const c of rows){const d=counts.get(localDay(new Date(c.horaChamada)));if(d)d.count++;}
+ const max=days.reduce((m,d)=>Math.max(m,d.count),1);$('chart').replaceChildren();for(const d of days){const bar=document.createElement('div');bar.className='bar';bar.title=`${d.label}: ${d.count} chamadas`;const n=document.createElement('span');n.textContent=d.count;const b=document.createElement('i');b.style.height=`${Math.max(2,d.count/max*55)}px`;const l=document.createElement('span');l.textContent=d.label;bar.append(n,b,l);$('chart').append(bar);}
+}
+function download(name,data,type){const url=URL.createObjectURL(new Blob([data],{type})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+function csvCell(v){const value=String(v??'');return '"'+(/^[=+@\-\t\r]/.test(value)?"'"+value:value).replaceAll('"','""')+'"';}
+function exportCSV(){const rows=[['ID','Chamada (ISO 8601 UTC)','Atendida (ISO 8601 UTC)','Espera (segundos)','Estado'],...filtered().map(c=>[c.id,c.horaChamada,c.horaResolucao,Math.floor(duration(c)/1000),c.resolvida?'Atendida':'Por atender'])];download(`chamadas-${localDay(new Date())}.csv`,'\ufeff'+rows.map(r=>r.map(csvCell).join(';')).join('\r\n'),'text/csv;charset=utf-8');}
+function exportBackup(){download(`chamadas-backup-${localDay(new Date())}.json`,JSON.stringify({versao:1,chamadas:calls},null,2),'application/json');}
+async function toggleSound(){
+ sound=!sound;if(sound){try{audio??=new(window.AudioContext||window.webkitAudioContext)();await audio.resume();beep();}catch{sound=false;error('O som não está disponível neste dispositivo.');}}
+ $('soundButton').textContent=sound?'Som ativo · Desativar':'Ativar som';
+}
+function beep(){if(!sound||!audio)return;const o=audio.createOscillator(),g=audio.createGain();o.connect(g);g.connect(audio.destination);o.frequency.value=800;g.gain.setValueAtTime(.15,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+.4);o.start();o.stop(audio.currentTime+.4);o.onended=()=>{o.disconnect();g.disconnect();};}
+async function enableNotifications(){if(!('Notification'in window)){error('Notificações não disponíveis. Utilize a aplicação instalada.');return;}try{const p=await Notification.requestPermission();$('notificationButton').textContent=p==='granted'?'Notificações ativas':'Notificações bloqueadas';}catch{error('Use localhost, HTTPS ou a aplicação instalada para ativar notificações.');}}
+function updateLive(){
+ const c=activeCall(),allowed=online&&ready&&!request;
+ $('callButton').disabled=!allowed||!!c;$('callButton').textContent=request?'A confirmar…':c?'Chamada enviada · A aguardar':'Chamar atendimento';$('callerStatus').textContent=c?`À espera há ${time(duration(c))}`:'';
+ $('statusCard').classList.toggle('active',!!c);$('statusTitle').textContent=c?'Chamada por atender':'Atendimento disponível';$('wait').textContent=c?timer(duration(c)):'—';$('resolveButton').classList.toggle('hidden',!c);$('resolveButton').disabled=!allowed;$('alertResolve').disabled=!allowed;
+ const show=c&&role==='backoffice'&&dismissed!==c.id;$('alert').classList.toggle('hidden',!show);if(c)$('alertTimer').textContent=timer(duration(c));
+ document.title=c&&role==='backoffice'?`☎ Chamada · ${timer(duration(c))}`:'Sistema de Chamadas';
+ if(c&&role==='backoffice'){
+  if(notified!==c.id){notified=c.id;if(!window.desktopApp&&'Notification'in window&&Notification.permission==='granted'){notification?.close();notification=new Notification('Atendimento necessário',{body:'Há uma chamada à espera.',tag:'chamada',requireInteraction:true});notification.onclick=()=>{window.focus();dismissed=null;updateLive();};}}
+  if(Date.now()-lastBeep>=2500){lastBeep=Date.now();beep();}
+ }else{notification?.close();notification=null;notified=null;}
+}
+function render(){updateConnection();updateLive();renderLog();}
+$('backgroundHint').textContent=window.desktopApp?'Ao fechar a janela, a aplicação continua na área de notificação. Uma chamada volta a abrir o alerta.':'Mantenha este navegador aberto para receber chamadas. A aplicação instalada pode continuar na área de notificação quando a janela é fechada.';
+try{const saved=sessionStorage.getItem('posto');if(saved==='colaborador'||saved==='backoffice')choose(saved);}catch{}
+if(window.desktopApp)choose('backoffice');
+connect();setInterval(updateLive,1000);
+</script>
+</body>
+</html>

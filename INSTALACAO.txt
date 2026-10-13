@@ -1,0 +1,92 @@
+SISTEMA DE CHAMADAS 2.0 — WINDOWS
+
+INICIAR A APLICAÇÃO
+1. Guarde Sistema-Chamadas-2.0.0-Windows.exe numa pasta fixa do computador
+   do Back Office e execute-o. É uma aplicação portátil, sem instalador.
+   A aplicação inclui o servidor e não precisa de Node.js.
+   O executável não tem assinatura digital; o Windows pode mostrar um aviso.
+2. Pode criar um atalho para esse ficheiro. Este computador deve ficar ligado,
+   sem suspensão, e na mesma rede dos colaboradores.
+3. Se a Firewall do Windows perguntar, permita o acesso apenas na rede privada
+   da loja. A aplicação recebe ligações TCP na porta 3000.
+4. Na área de notificação (junto ao relógio, por vezes dentro da seta ^),
+   clique com o botão direito no ícone azul. Em "Endereços para colaboradores",
+   clique no endereço para o copiar.
+5. Nos outros computadores, abra esse endereço num navegador, por exemplo
+   http://192.168.1.100:3000, e escolha Colaborador.
+6. Para iniciar automaticamente, marque "Iniciar com o Windows" no menu
+   do ícone. A aplicação arranca depois de iniciar sessão no Windows.
+
+FECHAR A JANELA
+O X esconde a janela na área de notificação. O servidor continua a funcionar.
+Uma nova chamada mostra uma notificação do Windows e reabre a janela.
+Enquanto uma chamada estiver pendente, fechar novamente a janela faz com que
+ela reapareça no próximo lembrete (até 20 segundos).
+Para parar completamente, use "Sair e parar o serviço…" no ícone.
+O sistema não recebe chamadas quando o PC está desligado, suspenso,
+sem sessão iniciada ou quando a aplicação foi terminada.
+O modo Não incomodar do Windows pode esconder notificações; a aplicação
+continua a tentar mostrar a janela. O Windows pode limitar o foco da janela.
+
+SOM E NOTIFICAÇÕES
+Clique "Ativar som" no Back Office para ativar os avisos repetidos da janela.
+As notificações nativas da aplicação funcionam independentemente desta opção.
+Num Back Office aberto apenas no navegador, mantenha a página aberta e use
+"Ativar notificações" (disponível em localhost ou HTTPS). Fechar o navegador
+não mantém esse cliente a receber alertas. A aplicação principal instalada
+continua a receber chamadas, mesmo se os navegadores dos colaboradores fecharem.
+
+HISTÓRICO E ANÁLISE
+Todas as chamadas ficam guardadas em disco, incluindo as chamadas pendentes.
+Ao reabrir a aplicação, o histórico e o estado da chamada são recuperados.
+Existe uma chamada pendente de cada vez; cliques simultâneos não criam duplicados.
+"Atendido" só resolve a chamada apresentada, evitando resolver uma chamada nova
+por engano com um botão antigo.
+
+No histórico do Back Office:
+- Filtre por intervalo de datas, estado ou ID.
+- Veja contagem, pendentes, espera média e maior espera.
+- Veja chamadas por dia para os últimos sete dias do período.
+- Percorra todo o histórico (25 linhas por página).
+- Exporte as linhas filtradas em CSV, com datas UTC e espera em segundos.
+  O CSV usa ponto e vírgula e UTF-8 e pode ser aberto no Excel.
+- Descarregue "Cópia JSON completa" para guardar uma cópia do histórico.
+As datas apresentadas e os filtros usam o fuso horário do computador do utilizador.
+A espera média e máxima usam apenas chamadas atendidas.
+
+DADOS E CÓPIAS DE SEGURANÇA
+Na aplicação Windows, o histórico fica em:
+%APPDATA%\sistema-chamadas-loja\dados\chamadas.json
+Use "Abrir pasta do histórico" no ícone para localizar a pasta exata.
+Recomenda-se guardar regularmente uma cópia JSON num local seguro.
+Para restaurar, saia completamente da aplicação, guarde o ficheiro atual e
+substitua chamadas.json por uma cópia JSON exportada. Reabra a aplicação.
+Não edite o ficheiro enquanto a aplicação está a correr.
+O programa não apaga o histórico automaticamente nem tem um botão de apagar.
+Se o histórico estiver danificado, a aplicação recusa arrancar e preserva-o.
+As chamadas da versão 1 só existiam em memória; não podem ser recuperadas
+após encerrar esse servidor.
+
+REDE
+Use esta aplicação numa rede local de confiança. Não configure encaminhamento
+na Internet para a porta 3000. Os postos são funções da interface, não contas
+com autenticação: os clientes da rede que acedem ao serviço podem ver o histórico
+e enviar ações. Não existem permissões por utilizador nesta versão.
+Para manter o endereço estável, reserve o IP do computador no router.
+Se a porta 3000 estiver ocupada, encerre o servidor anterior e volte a abrir.
+
+CÓDIGO-FONTE / DESENVOLVIMENTO
+Requer Node.js 22 ou posterior para desenvolvimento.
+  npm ci
+  npm test
+  npm run desktop
+Para gerar a aplicação portátil Windows de 64 bits:
+  npm run build:win
+O executável é guardado em dist/.
+Para gerar um instalador no Windows: npm run build:installer.
+Para usar só o servidor, sem aplicação gráfica:
+  npm start
+Depois abra http://localhost:3000.
+Neste modo os dados ficam em dados/ junto ao código, ou na pasta definida
+pela variável CHAMADAS_DATA_DIR; PORT permite escolher outra porta.
+O servidor não publica o código-fonte nem a pasta de dados na rede.
