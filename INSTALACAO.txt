@@ -1,12 +1,12 @@
-SISTEMA DE CHAMADAS 2.0 — WINDOWS
+SISTEMA DE CHAMADAS 2.0.1 — WINDOWS 8
 
 INICIAR A APLICAÇÃO
-1. Guarde Sistema-Chamadas-2.0.0-Windows.exe numa pasta fixa do computador
-   do Back Office e execute-o. É uma aplicação portátil, sem instalador.
-   A aplicação inclui o servidor e não precisa de Node.js.
-   O executável não tem assinatura digital; o Windows pode mostrar um aviso.
-2. Pode criar um atalho para esse ficheiro. Este computador deve ficar ligado,
-   sem suspensão, e na mesma rede dos colaboradores.
+1. Descarregue Sistema-Chamadas-2.0.1-Windows8.zip e extraia TODOS os ficheiros.
+   Abra a pasta extraída e execute Iniciar.cmd.
+   Mantenha o EXE, as DLLs e as pastas resources e locales juntos.
+   Não precisa de Node.js. O programa não tem assinatura digital.
+2. O computador do Back Office deve ficar ligado, sem suspensão,
+   e na mesma rede dos colaboradores.
 3. Se a Firewall do Windows perguntar, permita o acesso apenas na rede privada
    da loja. A aplicação recebe ligações TCP na porta 3000.
 4. Na área de notificação (junto ao relógio, por vezes dentro da seta ^),
@@ -81,8 +81,8 @@ Requer Node.js 22 ou posterior para desenvolvimento.
   npm test
   npm run desktop
 Para gerar a aplicação portátil Windows de 64 bits:
-  npm run build:win
-O executável é guardado em dist/.
+  npm run build:folder
+A pasta da aplicação é guardada em dist/win-unpacked/.
 Para gerar um instalador no Windows: npm run build:installer.
 Para usar só o servidor, sem aplicação gráfica:
   npm start
@@ -90,3 +90,11 @@ Depois abra http://localhost:3000.
 Neste modo os dados ficam em dados/ junto ao código, ou na pasta definida
 pela variável CHAMADAS_DATA_DIR; PORT permite escolher outra porta.
 O servidor não publica o código-fonte nem a pasta de dados na rede.
+
+COMPATIBILIDADE E DIAGNÓSTICO
+A versão 2.0.0 não funciona no Windows 8 (exige Windows 10+).
+A versão 2.0.1 usa Electron 22 para Windows 7/8/8.1. Este runtime antigo
+não recebe atualizações de segurança: use apenas numa rede local de confiança.
+Se não abrir, execute Iniciar.cmd e indique o código de saída.
+Os logs diagnostico-console.log e diagnostico-electron.log ficam nesta pasta.
+O log de arranque fica em %APPDATA%\sistema-chamadas-loja\arranque.log.

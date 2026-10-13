@@ -1,36 +1,25 @@
-SYSTEM OF CALLS — VERSION 2.0
+SISTEMA DE CHAMADAS 2.0.1 — WINDOWS 8 COMPATIBILITY
 
-1. Save Sistema-Chamadas-2.0.0-Windows.exe in a permanent folder on the
-   Back Office Windows PC and double-click it. No Node.js installation is needed.
-   This is an unsigned app; Windows may show a security warning.
-2. Keep this PC awake. Allow TCP port 3000 on the store's private network.
-3. Right-click the blue app icon near the Windows clock. Under
+1. Download Sistema-Chamadas-2.0.1-Windows8.zip and EXTRACT ALL files.
+2. Open the extracted folder and double-click Iniciar.cmd.
+   Keep the EXE, DLLs, locales and resources together. Do not move only the EXE.
+3. The Back Office window opens. Allow the private-network firewall prompt.
+4. Right-click the blue tray icon near the clock. Under
    "Endereços para colaboradores", click an address to copy it.
-4. On other PCs in the same network, open that address in a browser and select
-   "Colaborador". The desktop app opens as Back Office.
-5. Closing the desktop window hides it in the system tray. A new call restores
-   the window and sends a Windows notification. Double-click the tray icon to open it.
-6. Optional: enable "Iniciar com o Windows" from the tray menu.
-   Do not move the EXE after enabling startup.
-7. To stop the server, use "Sair e parar o serviço…" from the tray menu.
+5. Other computers on the same local network use that address in their browser.
+   Choose Colaborador to send calls. The main PC must remain awake.
+6. Closing the desktop window hides it in the tray; a call brings it back.
+   Double-click the tray icon to reopen. Use the tray menu to quit completely.
 
-THE LOG IS INSIDE THE APP
-Filter the Back Office history by date, state, or call ID. See waiting-time
-statistics and a seven-day chart. Browse every record using the page buttons.
-"Exportar CSV filtrado" exports the currently filtered records for Excel.
-"Cópia JSON completa" exports a full backup. Calls survive app/server restarts.
-Dates in the app use the viewer's local time zone; CSV timestamps use UTC.
+If it still does not open, Iniciar.cmd keeps a console open with the exit code.
+It writes diagnostico-console.log and diagnostico-electron.log in this folder.
+The app writes %APPDATA%\sistema-chamadas-loja\arranque.log.
+Send the exit code and the last lines of these logs to diagnose startup.
 
-LIMITS
-The Back Office PC must stay powered on, awake and connected to the network.
-Windows may limit foreground focus or suppress notifications in Do Not Disturb.
-Use only on a trusted local network; this version has no user authentication.
-Native Windows notification, firewall and startup behavior needs a check on your PC.
-The code and browser flows passed automated tests in the build environment.
-
-FILES
-Sistema-Chamadas-2.0.0-Windows.exe : self-contained Windows 64-bit app
-Sistema-Chamadas-2.0.0-source.zip  : source, dependency lockfile and tests
-INSTALACAO.txt                   : full Portuguese instructions
-historico-preview.png            : in-app history viewer screenshot
-VALIDATION.txt                   : testing details
+History and CSV/JSON export are inside Back Office.
+Saved history remains in %APPDATA%\sistema-chamadas-loja\dados.
+The original 2.0.0 package requires Windows 10+ and does NOT support Windows 8.
+This version uses Electron 22, the last series supporting Windows 7/8/8.1.
+Windows 8 and this legacy runtime no longer receive security updates;
+use only on a trusted local network. The application has no user authentication.
+It is unsigned. No Node.js installation is needed to run the extracted app.

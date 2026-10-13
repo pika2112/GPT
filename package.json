@@ -1,6 +1,6 @@
 {
   "name": "sistema-chamadas-loja",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Chamadas de atendimento com histórico persistente",
   "main": "desktop.js",
   "scripts": {
@@ -8,14 +8,15 @@
     "test": "node --test test/*.test.js",
     "desktop": "electron .",
     "build:win": "electron-builder --win portable --x64",
-    "build:installer": "electron-builder --win nsis --x64"
+    "build:installer": "electron-builder --win nsis --x64",
+    "build:folder": "electron-builder --win --x64 --dir"
   },
   "dependencies": {
     "express": "^4.21.2",
     "ws": "^8.18.3"
   },
   "devDependencies": {
-    "electron": "^42.0.0",
+    "electron": "22.3.27",
     "electron-builder": "^26.0.12"
   },
   "build": {
@@ -30,7 +31,8 @@
       "servidor.js",
       "public/**/*",
       "assets/**/*",
-      "package.json"
+      "package.json",
+      "scripts/*.js"
     ],
     "win": {
       "target": [
@@ -47,6 +49,7 @@
     },
     "portable": {
       "artifactName": "Sistema-Chamadas-${version}-Windows.${ext}"
-    }
+    },
+    "compression": "normal"
   }
 }

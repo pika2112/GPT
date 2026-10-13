@@ -1,0 +1,58 @@
+name: Build and test Windows compatibility app
+on:
+  push:
+    branches: [main]
+    paths-ignore: ['downloads/**', '*.md']
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build:folder
+      - name: Launch the real Windows desktop and test calls
+        shell: pwsh
+        run: |
+          $env:CHAMADAS_SMOKE_DATA = Join-Path $env:RUNNER_TEMP 'chamadas-smoke'
+          $appExe = Resolve-Path 'dist/win-unpacked/Sistema de Chamadas.exe'
+          $proc = Start-Process -FilePath $appExe -ArgumentList '--smoke-test' -PassThru
+          $null = $proc.Handle
+          if (-not $proc.WaitForExit(90000)) { Stop-Process -Id $proc.Id -Force; throw 'Desktop startup timed out' }
+          $startupLog = Join-Path $env:CHAMADAS_SMOKE_DATA 'arranque.log'
+          if (Test-Path $startupLog) { Get-Content $startupLog }
+          if ($proc.ExitCode -ne 0) { throw "Desktop exit code $($proc.ExitCode)" }
+          if (-not (Select-String -Path $startupLog -Pattern 'SMOKE TEST PASSED' -Quiet)) { throw 'Desktop test did not complete' }
+      - name: Package the folder distribution
+        shell: pwsh
+        run: |
+          Copy-Item scripts/Iniciar.cmd dist/win-unpacked/Iniciar.cmd
+          Copy-Item START-HERE.txt dist/win-unpacked/START-HERE.txt
+          Copy-Item INSTALACAO.txt dist/win-unpacked/INSTALACAO.txt
+          7z a -tzip -mx=3 Sistema-Chamadas-2.0.1-Windows8.zip ./dist/win-unpacked/*
+          if ($LASTEXITCODE -ne 0) { throw 'ZIP packaging failed' }
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-startup-log
+          path: ${{ runner.temp }}/chamadas-smoke/arranque.log
+        if: always()
+      - name: Publish the tested download
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          gh release view v2.0.1-win8 --repo $env:GITHUB_REPOSITORY *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create v2.0.1-win8 --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'Windows 8 compatibility build 2.0.1' --notes 'Folder distribution using Electron 22 for Windows 8 compatibility. Includes startup diagnostics. Desktop launch and call handling tested on a Windows runner; Windows 8 itself has not been tested. Legacy runtime is unsupported for security updates.'
+            if ($LASTEXITCODE -ne 0) { throw 'Release creation failed' }
+          }
+          gh release upload v2.0.1-win8 Sistema-Chamadas-2.0.1-Windows8.zip --repo $env:GITHUB_REPOSITORY --clobber
+          if ($LASTEXITCODE -ne 0) { throw 'Release upload failed' }

@@ -2,9 +2,11 @@
 
 ## Download for Windows
 
-[Download the complete Windows ZIP](https://github.com/pika2112/GPT/raw/refs/heads/main/downloads/Sistema-Chamadas-2.0.0.zip) (87 MB).
+[Download the Windows 8 compatibility ZIP](https://github.com/pika2112/GPT/releases/download/v2.0.1-win8/Sistema-Chamadas-2.0.1-Windows8.zip).
 
-Extract the ZIP and run `Sistema-Chamadas-2.0.0-Windows.exe` on the Back Office PC.
+The original 2.0.0 portable EXE requires Windows 10 or newer. Use this replacement on Windows 8.
+
+Extract **all** files and run `Iniciar.cmd` on the Back Office PC. Keep the application folder together.
 No Node.js installation is needed. Read `START-HERE.txt` first.
 
 ## About the app
@@ -34,10 +36,14 @@ This version has no user authentication.
 ## Build the Windows app
 
 ```sh
-npm run build:win
+npm run build:folder
 ```
 
-The self-contained Windows executable is generated in `dist/`.
+The Windows application folder is generated in `dist/win-unpacked/`.
+This compatibility build pins Electron 22.3.27, the last series supporting
+Windows 7/8/8.1. That runtime is no longer supported for security updates.
+The workflow builds and smoke-tests the packaged desktop on a Windows runner,
+then publishes the ZIP as a release asset. Windows 8 itself is not tested in CI.
 For a Windows installer, build on Windows with `npm run build:installer`.
 Builds are unsigned. Native Windows focus, startup and notification behavior
 requires verification on a Windows PC.
