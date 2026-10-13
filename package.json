@@ -1,7 +1,7 @@
 {
   "name": "sistema-chamadas-loja",
-  "version": "2.0.1",
-  "description": "Chamadas de atendimento com histórico persistente",
+  "version": "2.0.2",
+  "description": "Farmácia Faria — atendimento, resumo diário e registos por posto",
   "main": "desktop.js",
   "scripts": {
     "start": "node servidor.js",

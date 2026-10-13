@@ -1,7 +1,7 @@
 @echo off
 setlocal
 cd /d "%~dp0"
-echo Sistema de Chamadas - Windows 10/11 64 bits
+echo Farmacia Faria - Windows 7/8/10/11 64 bits
 echo Mantenha todos os ficheiros desta pasta juntos.
 echo A iniciar...
 set ELECTRON_ENABLE_LOGGING=1

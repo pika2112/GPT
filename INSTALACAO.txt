@@ -1,7 +1,9 @@
-SISTEMA DE CHAMADAS 2.0.1 — WINDOWS 8
+Para atualizar uma versão existente, leia primeiro ATUALIZAR.txt.
+
+FARMÁCIA FARIA — CHAMADAS 2.0.2 — WINDOWS 8
 
 INICIAR A APLICAÇÃO
-1. Descarregue Sistema-Chamadas-2.0.1-Windows8.zip e extraia TODOS os ficheiros.
+1. Descarregue Farmacia-Faria-2.0.2-Windows8.zip e extraia TODOS os ficheiros.
    Abra a pasta extraída e execute Iniciar.cmd.
    Mantenha o EXE, as DLLs e as pastas resources e locales juntos.
    Não precisa de Node.js. O programa não tem assinatura digital.
@@ -93,8 +95,14 @@ O servidor não publica o código-fonte nem a pasta de dados na rede.
 
 COMPATIBILIDADE E DIAGNÓSTICO
 A versão 2.0.0 não funciona no Windows 8 (exige Windows 10+).
-A versão 2.0.1 usa Electron 22 para Windows 7/8/8.1. Este runtime antigo
+A versão 2.0.2 usa Electron 22 para Windows 7/8/8.1. Este runtime antigo
 não recebe atualizações de segurança: use apenas numa rede local de confiança.
 Se não abrir, execute Iniciar.cmd e indique o código de saída.
 Os logs diagnostico-console.log e diagnostico-electron.log ficam nesta pasta.
 O log de arranque fica em %APPDATA%\sistema-chamadas-loja\arranque.log.
+
+INTERFACE FARMÁCIA FARIA
+O painel principal mostra HOJE (horário de Lisboa).
+O histórico e as métricas ficam em "Histórico e análise", fechado por defeito.
+Pode associar IPs a nomes em "Postos da farmácia" e filtrar/exportar por posto.
+A cópia JSON inclui os postos e conserva compatibilidade com os dados anteriores.

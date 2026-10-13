@@ -1,13 +1,15 @@
-# Sistema de Chamadas
+# Farmácia Faria · Chamadas
 
 ## Download for Windows
 
-[Download the Windows 8 compatibility ZIP](https://github.com/pika2112/GPT/releases/download/v2.0.1-win8/Sistema-Chamadas-2.0.1-Windows8.zip).
+[Download the Windows 8 compatibility ZIP](https://github.com/pika2112/GPT/releases/download/v2.0.2-faria/Farmacia-Faria-2.0.2-Windows8.zip).
 
 The original 2.0.0 portable EXE requires Windows 10 or newer. Use this replacement on Windows 8.
 
 Extract **all** files and run `Iniciar.cmd` on the Back Office PC. Keep the application folder together.
 No Node.js installation is needed. Read `START-HERE.txt` first.
+
+See `ATUALIZAR.txt` to replace an old version without losing history.
 
 ## About the app
 
@@ -15,7 +17,12 @@ Windows Back Office app and browser clients for a shop's local network.
 The desktop window closes to the system tray; incoming calls reopen the window
 and send a native notification. The main PC must remain awake.
 
-The in-app history survives restarts and supports date/status/ID filters,
+The dashboard focuses on today in the Lisbon time zone. Historical metrics
+and records are in a collapsed panel. Incoming calls record their real socket IP;
+names can be assigned to computers and used in filters and CSV exports.
+The Windows startup option is available both in the app and in its tray menu.
+
+The in-app history survives restarts and supports date/status/post/ID filters,
 response-time summaries, pagination, filtered CSV export and a complete JSON backup.
 
 ## Run from source

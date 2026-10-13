@@ -1,25 +1,41 @@
-SISTEMA DE CHAMADAS 2.0.1 — WINDOWS 8 COMPATIBILITY
+FARMÁCIA FARIA 2.0.2 — WINDOWS 8
 
-1. Download Sistema-Chamadas-2.0.1-Windows8.zip and EXTRACT ALL files.
-2. Open the extracted folder and double-click Iniciar.cmd.
-   Keep the EXE, DLLs, locales and resources together. Do not move only the EXE.
-3. The Back Office window opens. Allow the private-network firewall prompt.
-4. Right-click the blue tray icon near the clock. Under
-   "Endereços para colaboradores", click an address to copy it.
-5. Other computers on the same local network use that address in their browser.
-   Choose Colaborador to send calls. The main PC must remain awake.
-6. Closing the desktop window hides it in the tray; a call brings it back.
-   Double-click the tray icon to reopen. Use the tray menu to quit completely.
+Se já tem uma versão instalada, leia primeiro ATUALIZAR.txt.
 
-If it still does not open, Iniciar.cmd keeps a console open with the exit code.
-It writes diagnostico-console.log and diagnostico-electron.log in this folder.
-The app writes %APPDATA%\sistema-chamadas-loja\arranque.log.
-Send the exit code and the last lines of these logs to diagnose startup.
+1. Extraia TODOS os ficheiros do ZIP para uma pasta fixa, por exemplo
+   C:\FarmaciaFaria\Chamadas\ (ou uma pasta onde tenha permissões de escrita).
+2. Execute Iniciar.cmd. Mantenha EXE, DLLs, resources e locales juntos.
+3. O Back Office abre com o resumo de HOJE e as últimas chamadas do dia.
+   O painel atualiza automaticamente quando chega uma chamada e à meia-noite,
+   usando o horário de Lisboa. Chamadas pendentes de ontem continuam visíveis.
+4. "Histórico e análise" abre as métricas adicionais, os filtros e os registos
+   de outros dias. Pode exportar o dia em CSV, os registos filtrados em CSV,
+   ou uma cópia JSON completa do histórico e das associações de postos.
+5. Em "Postos da farmácia", associe IPs a nomes (ex.: 10.21.225.20 → Marcelo).
+   Faça uma chamada de cada posto para descobrir o IP real nessa lista.
+   Reserve os IPs no router. O IP identifica o computador, não uma conta pessoal.
+6. Em "Arranque da aplicação", ative o início automático depois de iniciar
+   sessão no Windows. Guarde primeiro a pasta na localização definitiva.
+7. Outros computadores da mesma rede usam o endereço no navegador, por exemplo
+   http://10.21.225.7:3000, e escolhem Colaborador.
+8. O X esconde a janela na área de notificação. Uma chamada volta a abri-la.
+   Para parar totalmente, use "Sair e parar o serviço…" no menu desse ícone.
 
-History and CSV/JSON export are inside Back Office.
-Saved history remains in %APPDATA%\sistema-chamadas-loja\dados.
-The original 2.0.0 package requires Windows 10+ and does NOT support Windows 8.
-This version uses Electron 22, the last series supporting Windows 7/8/8.1.
-Windows 8 and this legacy runtime no longer receive security updates;
-use only on a trusted local network. The application has no user authentication.
-It is unsigned. No Node.js installation is needed to run the extracted app.
+DADOS
+O histórico e os nomes por IP ficam em:
+  %APPDATA%\sistema-chamadas-loja\dados\chamadas.json
+A atualização conserva estes registos. Chamadas antigas que não guardavam
+IP aparecem como "Posto não registado"; não é possível recuperar o IP passado.
+
+DIAGNÓSTICO
+Se não abrir, Iniciar.cmd mostra o código de saída.
+Veja diagnostico-console.log e diagnostico-electron.log nesta pasta, ou
+%APPDATA%\sistema-chamadas-loja\arranque.log.
+O PC principal deve ficar ligado, sem suspensão e na rede da farmácia.
+Permita apenas a rede privada na Firewall do Windows (porta TCP 3000).
+
+COMPATIBILIDADE
+Usa Electron 22 para compatibilidade com Windows 7/8/8.1.
+Esse runtime antigo não recebe atualizações de segurança.
+Use apenas numa rede local de confiança. Não existem contas/autenticação.
+O programa não tem assinatura digital; não precisa de instalar Node.js.

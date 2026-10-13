@@ -11,9 +11,9 @@ async function harness(t, { trayError = false, serverError } = {}) {
     t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
     const h = { notices: [], dialogs: [], closed: false, active: false, process: new EventEmitter() };
     h.events = new EventEmitter();
-    h.service = { eventos: h.events, pastaDados: dir, estado: () => ({ chamadaAtiva: h.active }), iniciar: async () => { if (serverError) throw serverError; return 3000; }, fechar: async () => { h.closed = true; } };
+    h.service = { eventos: h.events, pastaDados: dir, estado: () => ({ chamadaAtiva: h.active, chamadas: h.active ? [{origemIp: '127.0.0.1'}] : [], postos: {} }), iniciar: async () => { if (serverError) throw serverError; return 3000; }, fechar: async () => { h.closed = true; } };
     h.app = new EventEmitter();
-    Object.assign(h.app, { setAppUserModelId() {}, disableHardwareAcceleration() {}, requestSingleInstanceLock: () => true, whenReady: () => Promise.resolve(), getPath: () => dir, getVersion: () => '2.0.1', getLoginItemSettings: () => ({ openAtLogin: false }), isPackaged: true, quit() { h.app.emit('before-quit', { preventDefault() {} }); } });
+    Object.assign(h.app, { setAppUserModelId() {}, disableHardwareAcceleration() {}, requestSingleInstanceLock: () => true, whenReady: () => Promise.resolve(), getPath: () => dir, getVersion: () => '2.0.2', getLoginItemSettings: () => ({ openAtLogin: !!h.startup }), setLoginItemSettings: opts => {h.startup = opts.openAtLogin;}, isPackaged: true, quit() { h.app.emit('before-quit', { preventDefault() {} }); } });
     Object.assign(h.process, { platform: 'win32', arch: 'x64', argv: [], env: {}, versions: { electron: '22.3.27' } });
     class Win extends EventEmitter {
         constructor() { super(); h.win = this; this.visible = true; this.webContents = new EventEmitter(); this.webContents.setWindowOpenHandler = () => {}; this.webContents.session = { setPermissionRequestHandler() {} }; }
@@ -21,7 +21,8 @@ async function harness(t, { trayError = false, serverError } = {}) {
     }
     class MockTray extends EventEmitter { constructor() { super(); if (trayError) throw Error('No tray'); h.tray = this; } setContextMenu(v) { this.menu = v; } setToolTip() {} }
     class Notice extends EventEmitter { static isSupported() { return true; } constructor() { super(); h.notices.push(this); } show() { this.shown = true; } close() { this.closed = true; } }
-    const electron = { app: h.app, BrowserWindow: Win, Tray: MockTray, Menu: { buildFromTemplate: x => x }, Notification: Notice, nativeImage: { createFromPath: () => ({}) }, shell: { openPath() {} }, dialog: { showMessageBox: async options => { h.dialogs.push(options); return { response: 0 }; }, showErrorBox() {} } };
+    h.ipc = {};
+    const electron = { ipcMain: {handle: (name, handler) => { h.ipc[name] = handler; }}, app: h.app, BrowserWindow: Win, Tray: MockTray, Menu: { buildFromTemplate: x => x }, Notification: Notice, nativeImage: { createFromPath: () => ({}) }, shell: { openPath() {} }, dialog: { showMessageBox: async options => { h.dialogs.push(options); return { response: 0 }; }, showErrorBox() {} } };
     const root = path.join(__dirname, '..');
     vm.runInNewContext(fs.readFileSync(path.join(root, 'desktop.js'), 'utf8'), { require: n => n === 'electron' ? electron : n === './servidor' ? { criarServidor: () => h.service } : require(n.startsWith('.') ? path.join(root, n) : n), __dirname: root, process: h.process, console, URL, setInterval: fn => { h.tick = fn; return 1; }, clearInterval() {} });
     await new Promise(r => setImmediate(r));
@@ -30,6 +31,10 @@ async function harness(t, { trayError = false, serverError } = {}) {
 }
 test('closing hides the window; calls restore it; shutdown stops the service', async t => {
     const h = await harness(t); assert.ok(h.tray); assert.match(h.log(), /Aplicação pronta/);
+    const sender = { sender: h.win.webContents, senderFrame: {url: 'http://127.0.0.1:3000/'} };
+    assert.equal(h.ipc['faria:get-startup'](sender), false);
+    assert.equal(h.ipc['faria:set-startup'](sender, true), true);
+    assert.throws(() => h.ipc['faria:set-startup']({sender: {}, senderFrame: {url: 'http://evil.test'}}, true));
     let prevented = false; h.win.emit('close', { preventDefault() { prevented = true; } });
     assert.ok(prevented); assert.equal(h.win.visible, false); assert.equal(h.closed, false);
     h.active = true; h.events.emit('chamada'); assert.equal(h.win.visible, true); assert.ok(h.win.restored); assert.ok(h.notices[0].shown);

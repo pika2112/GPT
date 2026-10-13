@@ -1,0 +1,44 @@
+FARMÁCIA FARIA — ATUALIZAR PARA 2.0.2 SEM PERDER O HISTÓRICO
+
+PASTA PRINCIPAL (ROOT)
+Guarde a aplicação inteira numa pasta fixa, por exemplo:
+  C:\FarmaciaFaria\Chamadas\
+Se não tiver permissões nessa pasta, use:
+  %LOCALAPPDATA%\FarmaciaFaria\Chamadas\
+Mantenha juntos o EXE, as DLLs e as pastas resources e locales.
+Não copie apenas o EXE. Não execute a aplicação dentro do ZIP.
+
+PASSO A PASSO
+1. Na aplicação antiga, exporte "Cópia JSON completa" e guarde num local seguro.
+2. Clique com o botão direito no ícone junto ao relógio e escolha
+   "Sair e parar o serviço…". O X apenas esconde a janela; não a encerra.
+3. Extraia TODOS os ficheiros do novo ZIP para uma pasta nova.
+4. Se já usa C:\FarmaciaFaria\Chamadas, renomeie essa pasta para
+   Chamadas-antiga e coloque a pasta nova como Chamadas.
+   Não misture DLLs ou ficheiros de duas versões.
+5. Execute Iniciar.cmd na pasta nova. Confirme que o histórico antigo aparece
+   em "Histórico e análise" e faça uma chamada de teste de outro computador.
+6. Ative "Iniciar automaticamente com o Windows" na aplicação nova, se desejado.
+   Isso atualiza o caminho do arranque automático para esta pasta.
+7. Depois de confirmar que tudo funciona, pode apagar a pasta Chamadas-antiga,
+   os atalhos que apontem para essa pasta e o ZIP antigo.
+
+NÃO APAGUE OS DADOS
+Os registos e as associações IP/nome estão separados da pasta do programa:
+  %APPDATA%\sistema-chamadas-loja\dados\chamadas.json
+As novas versões continuam a usar essa mesma localização.
+Não apague %APPDATA%\sistema-chamadas-loja ao remover a pasta antiga.
+Guarde a cópia JSON exportada até confirmar a atualização.
+
+ACESSO DOS OUTROS COMPUTADORES
+Continuam a abrir o mesmo endereço, enquanto o IP do PC principal não mudar:
+  http://10.21.225.7:3000
+Atualize a página do navegador depois de trocar a versão. Se ainda apresentar
+as cores antigas, use Ctrl+F5 para recarregar sem a cache.
+
+ARRANQUE AUTOMÁTICO
+Abra "Histórico e análise" → "Arranque da aplicação".
+Ative "Iniciar automaticamente com o Windows" depois de guardar a pasta
+na localização definitiva. A aplicação abre depois de iniciar sessão.
+Também pode usar "Iniciar com o Windows" no menu do ícone junto ao relógio.
+Se mudar a pasta de sítio, volte a ativar esta opção na nova localização.

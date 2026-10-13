@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 690 145" role="img" aria-label="Farmácia Faria">
+<path fill="#195638" d="M58 0h29q12 0 12 12v34h34q12 0 12 12v29q0 12-12 12H99v34q0 12-12 12H58q-12 0-12-12V99H12Q0 99 0 87V58q0-12 12-12h34V12Q46 0 58 0Z"/>
+<path fill="#80bd16" d="M98 10c8 9 8 19-1 28L51 83c-2 2-3 0-3-3V64c0-5 2-8 6-12Z"/>
+<path fill="#80bd16" d="M95 49h37l-80 83c-11-9-14-22-3-33Z"/>
+<circle cx="54" cy="70" r="1.8" fill="#195638"/>
+<text x="153" y="106" font-family="Arial,Helvetica,sans-serif" font-size="76" font-weight="400" textLength="312" lengthAdjust="spacingAndGlyphs" fill="#80bd16">FARMÁCIA</text>
+<text x="464" y="106" font-family="Arial,Helvetica,sans-serif" font-size="76" font-weight="800" textLength="225" lengthAdjust="spacingAndGlyphs" fill="#195638">FARIA</text>
+</svg>
