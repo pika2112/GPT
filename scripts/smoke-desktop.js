@@ -10,6 +10,7 @@ async function esperar(check) {
     throw new Error('Desktop readiness timed out');
 }
 module.exports = async function testar({ janela, servico, tray, log }) {
+    assert.equal(process.versions.electron, '44.7.2', 'The modern Windows build must use the pinned runtime');
     await esperar(() => janela.webContents.executeJavaScript("document.getElementById('connection').textContent.includes('Ligado')"));
     assert.equal(await janela.webContents.executeJavaScript('window.desktopApp'), true);
     assert.equal(await janela.webContents.executeJavaScript("document.getElementById('roleName').textContent"), 'Back Office');

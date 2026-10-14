@@ -13,7 +13,7 @@ async function harness(t, { trayError = false, serverError } = {}) {
     h.events = new EventEmitter();
     h.service = { eventos: h.events, pastaDados: dir, estado: () => ({ chamadaAtiva: h.active, chamadas: h.active ? [{origemIp: '127.0.0.1'}] : [], postos: {} }), iniciar: async () => { if (serverError) throw serverError; return 3000; }, fechar: async () => { h.closed = true; } };
     h.app = new EventEmitter();
-    Object.assign(h.app, { setAppUserModelId() {}, disableHardwareAcceleration() {}, requestSingleInstanceLock: () => true, whenReady: () => Promise.resolve(), getPath: () => dir, getVersion: () => '2.0.5', getLoginItemSettings: () => ({ openAtLogin: !!h.startup }), setLoginItemSettings: opts => {h.startup = opts.openAtLogin;}, isPackaged: true, quit() { h.app.emit('before-quit', { preventDefault() {} }); } });
+    Object.assign(h.app, { setAppUserModelId() {}, disableHardwareAcceleration() {}, requestSingleInstanceLock: () => true, whenReady: () => Promise.resolve(), getPath: () => dir, getVersion: () => '2.1.0', getLoginItemSettings: () => ({ openAtLogin: !!h.startup }), setLoginItemSettings: opts => {h.startup = opts.openAtLogin;}, isPackaged: true, quit() { h.app.emit('before-quit', { preventDefault() {} }); } });
     Object.assign(h.process, { platform: 'win32', arch: 'x64', argv: [], env: {}, versions: { electron: '22.3.27' } });
     class Win extends EventEmitter {
         constructor() { super(); h.win = this; this.visible = true; this.webContents = new EventEmitter(); this.webContents.setWindowOpenHandler = () => {}; this.webContents.session = { setPermissionRequestHandler() {} }; }

@@ -2,14 +2,16 @@
 
 ## Download for Windows
 
-[Download the Windows 8 compatibility ZIP](https://github.com/pika2112/GPT/releases/download/v2.0.5-faria/Farmacia-Faria-2.0.5-Windows8.zip).
+[Download the Windows 10/11 64-bit ZIP](https://github.com/pika2112/GPT/releases/download/v2.1.0-win10-11/Farmacia-Faria-2.1.0-Windows10-11.zip).
 
-The original 2.0.0 portable EXE requires Windows 10 or newer. Use this replacement on Windows 8.
+[Windows 8 edition (2.0.5)](https://github.com/pika2112/GPT/releases/download/v2.0.5-faria/Farmacia-Faria-2.0.5-Windows8.zip) remains available separately.
+
+The current edition requires Windows 10 or 11, 64-bit.
 
 Extract **all** files and run `Iniciar.cmd` on the Back Office PC. Keep the application folder together.
 No Node.js installation is needed. Read `START-HERE.txt` first.
 
-[Installation and user manual (Portuguese PDF)](https://github.com/pika2112/GPT/releases/download/v2.0.5-faria/Manual-Farmacia-Faria-2.0.5.pdf). The same manual and final-test checklist are included in the ZIP.
+[Installation and user manual (Portuguese PDF)](https://github.com/pika2112/GPT/releases/download/v2.1.0-win10-11/Manual-Farmacia-Faria-2.1.0.pdf). The same manual and final-test checklist are included in the ZIP.
 
 See `ATUALIZAR.txt` to replace an old version without losing history.
 
@@ -50,10 +52,10 @@ npm run build:folder
 ```
 
 The Windows application folder is generated in `dist/win-unpacked/`.
-This compatibility build pins Electron 22.3.27, the last series supporting
-Windows 7/8/8.1. That runtime is no longer supported for security updates.
+This Windows 10/11 build pins Electron 44.7.2. The legacy Windows 8 build
+remains available in release 2.0.5; application data paths and schema are unchanged.
 The workflow builds and smoke-tests the packaged desktop on a Windows runner,
-then publishes the ZIP as a release asset. Windows 8 itself is not tested in CI.
+then publishes the ZIP as a release asset. The exact Windows 10/11 PCs in the pharmacy still require on-site validation.
 For a Windows installer, build on Windows with `npm run build:installer`.
 Builds are unsigned. Native Windows focus, startup and notification behavior
 requires verification on a Windows PC.

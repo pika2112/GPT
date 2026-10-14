@@ -1,4 +1,4 @@
-FARMÁCIA FARIA 2.0.5 — WINDOWS 8
+FARMÁCIA FARIA 2.1.0 — WINDOWS 10/11
 
 Se já tem uma versão instalada, leia primeiro ATUALIZAR.txt.
 
@@ -35,13 +35,14 @@ O PC principal deve ficar ligado, sem suspensão e na rede da farmácia.
 Permita apenas a rede privada na Firewall do Windows (porta TCP 3000).
 
 COMPATIBILIDADE
-Usa Electron 22 para compatibilidade com Windows 7/8/8.1.
-Esse runtime antigo não recebe atualizações de segurança.
+Esta edição usa Electron 44.7.2 e requer Windows 10 ou 11 de 64 bits.
+Para Windows 8, use a edição 2.0.5 disponível separadamente.
 Use apenas numa rede local de confiança. Não existem contas/autenticação.
 O programa não tem assinatura digital; não precisa de instalar Node.js.
 
-AJUSTES 2.0.5
+AJUSTES 2.1.0
+Runtime atualizado para Windows 10/11, mantendo a pasta e formato dos dados.
 O histórico só é desenhado quando aberto; o Excel é carregado na primeira
 exportação. A reconexão repete o pedido sem criar chamadas duplicadas.
 O log de arranque roda a 1 MB, conservando arranque.anterior.log.
-Leia Manual-Farmacia-Faria-2.0.5.pdf e use TESTE-FINAL.txt antes de entrar em uso.
+Leia Manual-Farmacia-Faria-2.1.0.pdf e use TESTE-FINAL.txt antes de entrar em uso.

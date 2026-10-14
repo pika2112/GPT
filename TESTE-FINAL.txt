@@ -1,5 +1,5 @@
-FARMÁCIA FARIA 2.0.5 — TESTE FINAL NA REDE REAL
-Leia a página 10 do Manual-Farmacia-Faria-2.0.5.pdf.
+FARMÁCIA FARIA 2.1.0 — TESTE FINAL NA REDE REAL
+Leia a página 10 do Manual-Farmacia-Faria-2.1.0.pdf.
 Faça primeiro uma cópia JSON e anote a contagem: os testes criam registos reais.
 
 [ ] 1. Arrancar pelo Iniciar.cmd; confirmar versão, histórico e IP.
