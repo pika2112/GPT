@@ -1,5 +1,5 @@
-FARMÁCIA FARIA 2.2.0 — TESTE FINAL NA REDE REAL
-Leia a página 10 do Manual-Farmacia-Faria-2.2.0.pdf.
+FARMÁCIA FARIA 2.2.1 — TESTE FINAL NA REDE REAL
+Leia a página 10 do Manual-Farmacia-Faria-2.2.1.pdf.
 Faça primeiro uma cópia JSON e anote a contagem: os testes criam registos reais.
 
 [ ] 1. Arrancar pelo Iniciar.cmd; confirmar versão, histórico e IP.
@@ -18,7 +18,7 @@ Faça primeiro uma cópia JSON e anote a contagem: os testes criam registos reai
 Data: __________  Responsável: __________  Resultado: __________
 Não dar o teste como concluído se algum passo falhar.
 
-TESTE ADICIONAL 2.2.0 — MEMÓRIA DO EQUIPAMENTO
+TESTE ADICIONAL 2.2.1 — MEMÓRIA DO EQUIPAMENTO
 [ ] Escolher Back Office num equipamento e Colaborador noutro com IP diferente.
 [ ] Fechar e voltar a abrir os navegadores: cada IP recupera a própria função.
 [ ] Abrir outro navegador do mesmo equipamento: recupera a mesma função.

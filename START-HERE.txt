@@ -1,59 +1,36 @@
-FARMÁCIA FARIA 2.2.0 — WINDOWS 10/11
+FARMÁCIA FARIA 2.2.1 — WINDOWS 10/11 DE 64 BITS
 
-Se já tem uma versão instalada, leia primeiro ATUALIZAR.txt.
+CONTEÚDO DO ZIP
+FarmaciaFaria/
+  Chamadas/          Aplicação completa: EXE, DLLs, resources, locales, Iniciar.cmd
+  Manuais/           Manual PDF, instruções detalhadas e lista de teste final
+  LEIA-PRIMEIRO.txt  Este ficheiro
+  ATUALIZAR.txt      Passos para substituir uma versão existente sem perder dados
 
-1. Extraia TODOS os ficheiros do ZIP para uma pasta fixa, por exemplo
-   C:\FarmaciaFaria\Chamadas\ (ou uma pasta onde tenha permissões de escrita).
-2. Execute Iniciar.cmd. Mantenha EXE, DLLs, resources e locales juntos.
-3. O Back Office abre com o resumo de HOJE e as últimas chamadas do dia.
-   O painel atualiza automaticamente quando chega uma chamada e à meia-noite,
-   usando o horário de Lisboa. Chamadas pendentes de ontem continuam visíveis.
-4. "Histórico e análise" abre as métricas adicionais, os filtros e os registos
-   de outros dias. Pode exportar o dia em XLS, os registos filtrados em XLS,
-   e, em Definições → Cópia de segurança, guardar uma cópia JSON completa.
-5. Em "Definições" → "Postos da farmácia", associe IPs a nomes (ex.: 10.21.225.20 → Marcelo).
-   Faça uma chamada de cada posto para descobrir o IP real nessa lista.
-   Reserve os IPs no router. O IP identifica o computador, não uma conta pessoal.
-6. Em "Definições" → "Arranque da aplicação", ative o início automático depois de iniciar
-   sessão no Windows. Guarde primeiro a pasta na localização definitiva.
-7. Outros computadores da mesma rede usam o endereço no navegador, por exemplo
-   http://10.21.225.7:3000, e escolhem Colaborador.
-8. O X esconde a janela na área de notificação. Uma chamada volta a abri-la.
-   Para parar totalmente, use "Sair e parar o serviço…" no menu desse ícone.
+Se já usa o programa, leia ATUALIZAR.txt antes de copiar qualquer pasta.
 
-DADOS
-O histórico e os nomes por IP ficam em:
-  %APPDATA%\sistema-chamadas-loja\dados\chamadas.json
-A atualização conserva estes registos. Chamadas antigas que não guardavam
-IP aparecem como "Posto não registado"; não é possível recuperar o IP passado.
+PRIMEIRA INSTALAÇÃO
+1. Extraia o ZIP inteiro para uma pasta temporária.
+2. Copie a pasta FarmaciaFaria para C:\
+   Resultado: C:\FarmaciaFaria\Chamadas\ e C:\FarmaciaFaria\Manuais\.
+   Se não tiver permissões, copie-a para %LOCALAPPDATA%\.
+3. Abra Chamadas e execute Iniciar.cmd.
+   Mantenha todos os ficheiros dessa pasta juntos; não copie apenas o EXE.
+4. Permita a porta TCP 3000 apenas na rede privada da farmácia.
+5. Os restantes computadores abrem http://10.21.225.7:3000 no navegador.
+   Use o IP atual do computador principal se for diferente.
+6. Escolha a função de cada IP uma vez: Back Office ou Colaborador.
+   A última escolha fica guardada no servidor.
+7. Em Definições, associe os nomes aos IPs e ative o arranque com o Windows.
+   A pasta tem de estar na localização definitiva antes de o ativar.
+8. Siga Manuais\TESTE-FINAL.txt antes de usar durante o atendimento.
 
-DIAGNÓSTICO
-Se não abrir, Iniciar.cmd mostra o código de saída.
-Veja diagnostico-console.log e diagnostico-electron.log nesta pasta, ou
-%APPDATA%\sistema-chamadas-loja\arranque.log.
-O PC principal deve ficar ligado, sem suspensão e na rede da farmácia.
-Permita apenas a rede privada na Firewall do Windows (porta TCP 3000).
+O X esconde a janela. Para encerrar use o ícone junto ao relógio:
+"Sair e parar o serviço…".
 
-COMPATIBILIDADE
-Esta edição usa Electron 44.7.2 e requer Windows 10 ou 11 de 64 bits.
-Para Windows 8, use a edição 2.0.5 disponível separadamente.
-Use apenas numa rede local de confiança. Não existem contas/autenticação.
-O programa não tem assinatura digital; não precisa de instalar Node.js.
-
-AJUSTES 2.2.0
-Runtime atualizado para Windows 10/11, mantendo a pasta e formato dos dados.
-O histórico só é desenhado quando aberto; o Excel é carregado na primeira
-exportação. A reconexão repete o pedido sem criar chamadas duplicadas.
-O log de arranque roda a 1 MB, conservando arranque.anterior.log.
-Leia Manual-Farmacia-Faria-2.2.0.pdf e use TESTE-FINAL.txt antes de entrar em uso.
-
-MEMÓRIA POR EQUIPAMENTO
-A partir desta versão, escolha Back Office ou Colaborador uma vez no navegador.
-A escolha fica guardada no servidor pelo IP real e é recuperada ao voltar a abrir,
-mesmo noutro navegador do mesmo equipamento ou depois de reiniciar o serviço.
-Use Mudar de posto para guardar uma nova escolha. Abrir o seletor não apaga a anterior.
-Os IPs e as funções aparecem em Definições → Postos da farmácia.
-Reserve os IPs no router. Equipamentos que partilhem o mesmo IP partilham a função.
-As cópias JSON incluem estas preferências. Na primeira abertura após atualizar,
-os navegadores escolhem uma vez; a aplicação Windows usa Back Office por defeito
-quando ainda não há uma preferência guardada para o seu IP local.
+DADOS — CONSERVAR
+%APPDATA%\sistema-chamadas-loja\dados\chamadas.json
+O histórico, os nomes e as funções por IP ficam fora da pasta do programa.
+Não apague %APPDATA%\sistema-chamadas-loja.
+As cópias JSON são feitas em Definições → Cópia de segurança.
+O PC principal deve ficar ligado, sem suspensão e com a aplicação a correr.

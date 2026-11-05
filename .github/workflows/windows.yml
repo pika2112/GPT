@@ -36,14 +36,36 @@ jobs:
       - name: Package the folder distribution
         shell: pwsh
         run: |
-          Copy-Item scripts/Iniciar.cmd dist/win-unpacked/Iniciar.cmd
-          Copy-Item START-HERE.txt dist/win-unpacked/START-HERE.txt
-          Copy-Item INSTALACAO.txt dist/win-unpacked/INSTALACAO.txt
-          Copy-Item ATUALIZAR.txt dist/win-unpacked/ATUALIZAR.txt
-          Copy-Item TESTE-FINAL.txt dist/win-unpacked/TESTE-FINAL.txt
-          Copy-Item docs/Manual-Farmacia-Faria-2.2.0.pdf dist/win-unpacked/Manual-Farmacia-Faria-2.2.0.pdf
-          7z a -tzip -mx=3 Farmacia-Faria-2.2.0-Windows10-11.zip ./dist/win-unpacked/*
-          if ($LASTEXITCODE -ne 0) { throw 'ZIP packaging failed' }
+          $packageRoot = 'release/FarmaciaFaria'
+          New-Item -ItemType Directory -Force "$packageRoot/Manuais" | Out-Null
+          Copy-Item -Recurse dist/win-unpacked "$packageRoot/Chamadas"
+          Copy-Item scripts/Iniciar.cmd "$packageRoot/Chamadas/Iniciar.cmd"
+          Copy-Item START-HERE.txt "$packageRoot/LEIA-PRIMEIRO.txt"
+          Copy-Item ATUALIZAR.txt "$packageRoot/ATUALIZAR.txt"
+          Copy-Item INSTALACAO.txt "$packageRoot/Manuais/INSTALACAO.txt"
+          Copy-Item TESTE-FINAL.txt "$packageRoot/Manuais/TESTE-FINAL.txt"
+          Copy-Item docs/Manual-Farmacia-Faria-2.2.1.pdf "$packageRoot/Manuais/Manual-Farmacia-Faria-2.2.1.pdf"
+          $zipPath = Join-Path $env:GITHUB_WORKSPACE 'Farmacia-Faria-2.2.1-Windows10-11.zip'
+          Push-Location release
+          try {
+            7z a -tzip -mx=3 $zipPath ./FarmaciaFaria
+            if ($LASTEXITCODE -ne 0) { throw 'ZIP packaging failed' }
+          } finally { Pop-Location }
+          # Inspect the final archive, including every runtime file.
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $archive = [System.IO.Compression.ZipFile]::OpenRead($zipPath)
+          try {
+            $names = @($archive.Entries | ForEach-Object { $_.FullName.Replace('\','/') })
+            foreach ($file in Get-ChildItem release -Recurse -File) {
+              $relative = [System.IO.Path]::GetRelativePath((Resolve-Path release).Path, $file.FullName).Replace('\','/')
+              if ($relative -notin $names) { throw "File missing from ZIP: $relative" }
+            }
+            foreach ($required in @('Chamadas/Iniciar.cmd','Chamadas/Sistema de Chamadas.exe','Chamadas/resources/app.asar','Manuais/Manual-Farmacia-Faria-2.2.1.pdf','Manuais/INSTALACAO.txt','Manuais/TESTE-FINAL.txt','LEIA-PRIMEIRO.txt','ATUALIZAR.txt')) {
+              if ("FarmaciaFaria/$required" -notin $names) { throw "ZIP layout incorrect: $required" }
+            }
+            if ($names | Where-Object { $_ -match '(^|/)dados/|(^|/)chamadas\.json$' }) { throw 'User data must not be shipped in the application ZIP' }
+            Write-Output "ZIP LAYOUT PASSED: $($archive.Entries.Count) entries, all runtime files and manuals present."
+          } finally { $archive.Dispose() }
       - uses: actions/upload-artifact@v4
         with:
           name: windows-startup-log
@@ -54,10 +76,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: pwsh
         run: |
-          gh release view v2.2.0-win10-11 --repo $env:GITHUB_REPOSITORY *> $null
+          gh release view v2.2.1-win10-11 --repo $env:GITHUB_REPOSITORY *> $null
           if ($LASTEXITCODE -ne 0) {
-            gh release create v2.2.0-win10-11 --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'Farmácia Faria 2.2.0 — memória de função por IP' --notes 'Cada equipamento recupera a última função escolhida (Back Office ou Colaborador) pelo IP real, mesmo noutro navegador e após reiniciar o serviço. As funções aparecem nas Definições e são incluídas nas cópias JSON. Reserve os IPs no router. Inclui manual PDF de instalação e utilização e checklist para o teste final. Histórico e Excel carregados quando necessários, reconexão sem duplicados, estado do posto chamador e logs de arranque limitados. Interface Farmácia Faria com foco em hoje, histórico expansível, exportação Excel XLS, logótipo vetorial original, alerta vermelho sem marca e cópia JSON apenas nas Definições, Definições com nomes de postos por IP, avisos e arranque automático. Conserva os dados existentes. Leia ATUALIZAR.txt antes de trocar a pasta. Requer Windows 10/11 de 64 bits; Electron 44.7.2. A edição Windows 8 continua na release 2.0.5. Arranque e chamadas testados num runner Windows.'
+            gh release create v2.2.1-win10-11 --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'Farmácia Faria 2.2.1 — pacote organizado' --notes 'ZIP organizado: FarmaciaFaria/Chamadas contém a aplicação completa; FarmaciaFaria/Manuais contém o PDF e os guias. LEIA-PRIMEIRO.txt e ATUALIZAR.txt estão na raiz. Para atualizar: exportar cópia JSON, sair pelo ícone junto ao relógio e substituir apenas a pasta do programa. Preserva histórico, nomes e funções por IP em AppData. Windows 10/11 de 64 bits. Executável e estrutura do ZIP verificados automaticamente.'
             if ($LASTEXITCODE -ne 0) { throw 'Release creation failed' }
           }
-          gh release upload v2.2.0-win10-11 Farmacia-Faria-2.2.0-Windows10-11.zip docs/Manual-Farmacia-Faria-2.2.0.pdf --repo $env:GITHUB_REPOSITORY --clobber
+          gh release upload v2.2.1-win10-11 Farmacia-Faria-2.2.1-Windows10-11.zip docs/Manual-Farmacia-Faria-2.2.1.pdf --repo $env:GITHUB_REPOSITORY --clobber
           if ($LASTEXITCODE -ne 0) { throw 'Release upload failed' }

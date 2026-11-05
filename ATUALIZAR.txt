@@ -1,52 +1,42 @@
-FARMÁCIA FARIA — ATUALIZAR PARA 2.2.0 SEM PERDER O HISTÓRICO
+FARMÁCIA FARIA — ATUALIZAR PARA 2.2.1
 
-PASTA PRINCIPAL (ROOT)
-Guarde a aplicação inteira numa pasta fixa, por exemplo:
-  C:\FarmaciaFaria\Chamadas\
-Se não tiver permissões nessa pasta, use:
-  %LOCALAPPDATA%\FarmaciaFaria\Chamadas\
-Mantenha juntos o EXE, as DLLs e as pastas resources e locales.
-Não copie apenas o EXE. Não execute a aplicação dentro do ZIP.
+SIM: A ATUALIZAÇÃO CONSISTE EM SUBSTITUIR A PASTA DO PROGRAMA.
+Faça primeiro uma cópia JSON e encerre completamente a aplicação.
+Não misture ficheiros antigos e novos.
 
-PASSO A PASSO
-1. Em Definições → Cópia de segurança, descarregue uma cópia completa
-   e guarde num local seguro. Em versões anteriores, o botão pode estar no histórico.
+1. Na aplicação atual: Definições → Cópia de segurança →
+   Descarregar cópia completa. Guarde o JSON fora da pasta que vai substituir.
 2. Clique com o botão direito no ícone junto ao relógio e escolha
-   "Sair e parar o serviço…". O X apenas esconde a janela; não a encerra.
-3. Extraia TODOS os ficheiros do novo ZIP para uma pasta nova.
-4. Se já usa C:\FarmaciaFaria\Chamadas, renomeie essa pasta para
-   Chamadas-antiga e coloque a pasta nova como Chamadas.
-   Não misture DLLs ou ficheiros de duas versões.
-5. Execute Iniciar.cmd na pasta nova. Confirme que o histórico antigo aparece
-   em "Histórico e análise" e faça uma chamada de teste de outro computador.
-6. Ative "Iniciar automaticamente com o Windows" na aplicação nova, se desejado.
-   Isso atualiza o caminho do arranque automático para esta pasta.
-7. Depois de confirmar que tudo funciona, pode apagar a pasta Chamadas-antiga,
-   os atalhos que apontem para essa pasta e o ZIP antigo.
+   "Sair e parar o serviço…". Confirme a saída. O X NÃO encerra.
+3. Extraia o novo ZIP inteiro para uma pasta temporária.
+   Dentro de FarmaciaFaria encontrará Chamadas e Manuais.
+4. Na localização onde usa o programa, renomeie Chamadas para Chamadas-antiga.
+   Exemplo: C:\FarmaciaFaria\Chamadas → C:\FarmaciaFaria\Chamadas-antiga.
+5. Copie a NOVA pasta Chamadas do ZIP para a mesma localização da anterior:
+   C:\FarmaciaFaria\Chamadas\Iniciar.cmd.
+   Não coloque Chamadas dentro de outra pasta Chamadas.
+   Se usa outra localização, conserve esse caminho.
+6. Substitua também a pasta Manuais e os dois TXT da raiz pelas novas versões.
+   Os manuais são documentação; não são necessários para executar o programa.
+7. Abra Chamadas\Iniciar.cmd na mesma conta do Windows que usava antes.
+   Confirme versão 2.2.1, histórico, nomes dos postos e funções por IP.
+8. Faça uma chamada de teste. Nos outros computadores, use Ctrl+F5.
+   O endereço mantém-se se o IP do PC principal continuar igual.
+9. Se mudou a localização da aplicação, volte a ativar o arranque com o Windows
+   em Definições e atualize os atalhos. Se o caminho é o mesmo, os atalhos mantêm-se.
+10. Depois de confirmar que funciona, pode apagar Chamadas-antiga e o ZIP antigo.
+    Conserve a cópia JSON de segurança.
 
-NÃO APAGUE OS DADOS
-Os registos e as associações IP/nome estão separados da pasta do programa:
-  %APPDATA%\sistema-chamadas-loja\dados\chamadas.json
-As novas versões continuam a usar essa mesma localização.
-Não apague %APPDATA%\sistema-chamadas-loja ao remover a pasta antiga.
-Guarde a cópia JSON exportada até confirmar a atualização.
+Se preferir apagar a pasta antiga diretamente em vez de a renomear, só o faça
+depois de concluir os passos 1 e 2. Renomear permite recuperar os ficheiros antigos
+enquanto verifica a atualização.
 
-ACESSO DOS OUTROS COMPUTADORES
-Continuam a abrir o mesmo endereço, enquanto o IP do PC principal não mudar:
-  http://10.21.225.7:3000
-Atualize a página do navegador depois de trocar a versão. Se ainda apresentar
-as cores antigas, use Ctrl+F5 para recarregar sem a cache.
+NÃO APAGAR NEM SUBSTITUIR A PASTA DOS DADOS
+%APPDATA%\sistema-chamadas-loja\
+Histórico, nomes e funções estão em:
+%APPDATA%\sistema-chamadas-loja\dados\chamadas.json
 
-ARRANQUE AUTOMÁTICO
-Abra "Definições" → "Arranque da aplicação".
-Ative "Iniciar automaticamente com o Windows" depois de guardar a pasta
-na localização definitiva. A aplicação abre depois de iniciar sessão.
-Também pode usar "Iniciar com o Windows" no menu do ícone junto ao relógio.
-Se mudar a pasta de sítio, volte a ativar esta opção na nova localização.
-
-NOVO NA 2.2.0
-Na primeira abertura, escolha uma vez a função de cada equipamento no navegador.
-Nas seguintes aberturas o servidor recupera a última escolha pelo IP.
-Esta preferência está incluída nas novas cópias JSON; cópias anteriores continuam
-válidas, mas não incluem a memória de funções. Não volte a executar uma versão
-antiga depois de atualizar os dados, pois poderá eliminar este campo ao guardar.
+Não copie uma pasta dados antiga por cima desta pasta.
+Esta instrução aplica-se à aplicação Windows; o modo Node/servidor tem a sua
+própria localização de dados e exige conservar a pasta definida para esse modo.
+O arranque com o Windows ocorre depois de iniciar sessão na mesma conta.
