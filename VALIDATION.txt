@@ -19,3 +19,12 @@ Use TESTE-FINAL.txt or page 10 of the manual. Executable is unsigned.
 
 2.1.0 updates the packaged runtime to Electron 44.7.2 for Windows 10/11 x64.
 The existing data path, schema, app identity and network protocol are retained.
+
+2.2.0 adds persisted per-socket-IP equipment roles, compatible with version-1
+history files that have no role field. Three new server integration tests cover
+restart, authentic IP, independent saved IPs, invalid values and disk failure.
+Native packaged smoke additionally checks a fresh isolated browser session,
+ignoring old sessionStorage, role changes, reload, cross-client sync, settings
+and JSON backups. Release publication is gated on these checks succeeding.
+The local execution environment failed to provision (503); this update is
+validated on GitHub Actions rather than a local workspace.

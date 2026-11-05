@@ -1,6 +1,6 @@
 {
   "name": "sistema-chamadas-loja",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Farmácia Faria — atendimento, resumo diário e registos por posto",
   "main": "desktop.js",
   "scripts": {

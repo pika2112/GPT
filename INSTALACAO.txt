@@ -1,9 +1,9 @@
 Para atualizar uma versão existente, leia primeiro ATUALIZAR.txt.
 
-FARMÁCIA FARIA — CHAMADAS 2.1.0 — WINDOWS 10/11
+FARMÁCIA FARIA — CHAMADAS 2.2.0 — WINDOWS 10/11
 
 INICIAR A APLICAÇÃO
-1. Descarregue Farmacia-Faria-2.1.0-Windows10-11.zip e extraia TODOS os ficheiros.
+1. Descarregue Farmacia-Faria-2.2.0-Windows10-11.zip e extraia TODOS os ficheiros.
    Abra a pasta extraída e execute Iniciar.cmd.
    Mantenha o EXE, as DLLs e as pastas resources e locales juntos.
    Não precisa de Node.js. O programa não tem assinatura digital.
@@ -96,7 +96,7 @@ O servidor não publica o código-fonte nem a pasta de dados na rede.
 
 COMPATIBILIDADE E DIAGNÓSTICO
 A versão 2.0.0 não funciona no Windows 8 (exige Windows 10+).
-A versão 2.1.0 usa Electron 44.7.2 para Windows 10/11 de 64 bits.
+A versão 2.2.0 usa Electron 44.7.2 para Windows 10/11 de 64 bits.
 Para Windows 8, use a edição 2.0.5 disponível separadamente.
 Use apenas numa rede local de confiança.
 Se não abrir, execute Iniciar.cmd e indique o código de saída.
@@ -108,3 +108,13 @@ O painel principal mostra HOJE (horário de Lisboa).
 O histórico e as métricas ficam em "Histórico e análise", fechado por defeito.
 Pode associar IPs a nomes em "Definições" → "Postos da farmácia" e filtrar/exportar por posto.
 A cópia JSON inclui os postos e conserva compatibilidade com os dados anteriores.
+
+A partir desta versão, escolha Back Office ou Colaborador uma vez no navegador.
+A escolha fica guardada no servidor pelo IP real e é recuperada ao voltar a abrir,
+mesmo noutro navegador do mesmo equipamento ou depois de reiniciar o serviço.
+Use Mudar de posto para guardar uma nova escolha. Abrir o seletor não apaga a anterior.
+Os IPs e as funções aparecem em Definições → Postos da farmácia.
+Reserve os IPs no router. Equipamentos que partilhem o mesmo IP partilham a função.
+As cópias JSON incluem estas preferências. Na primeira abertura após atualizar,
+os navegadores escolhem uma vez; a aplicação Windows usa Back Office por defeito
+quando ainda não há uma preferência guardada para o seu IP local.

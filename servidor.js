@@ -15,10 +15,15 @@ function criarServidor({ porta = 3000, host = '0.0.0.0', pastaDados = path.join(
     const ficheiro = path.join(pastaDados, 'chamadas.json');
     let chamadas = [];
     let postos = {};
+    let funcoes = {};
     if (fs.existsSync(ficheiro)) {
         const saved = JSON.parse(fs.readFileSync(ficheiro, 'utf8'));
         if (saved.versao !== 1 || !Array.isArray(saved.chamadas)) throw new Error('Histórico inválido. Preserve o ficheiro e restaure uma cópia de segurança.');
         if (saved.chamadas.some(c => !c || !['string', 'number'].includes(typeof c.id) || !String(c.id) || typeof c.resolvida !== 'boolean' || !Number.isFinite(Date.parse(c.horaChamada)) || (c.resolvida && !Number.isFinite(Date.parse(c.horaResolucao))) || (c.origemIp != null && (typeof c.origemIp !== 'string' || !isIP(c.origemIp))) || (c.origemNome != null && typeof c.origemNome !== 'string'))) throw new Error('Histórico inválido. Preserve o ficheiro e restaure uma cópia de segurança.');
+        if (saved.funcoes !== undefined) {
+            if (!saved.funcoes || typeof saved.funcoes !== 'object' || Array.isArray(saved.funcoes) || Object.entries(saved.funcoes).some(([ip, funcao]) => !isIP(ip) || !['colaborador', 'backoffice'].includes(funcao))) throw new Error('Funções dos equipamentos inválidas. Preserve o ficheiro e restaure uma cópia de segurança.');
+            funcoes = Object.fromEntries(Object.entries(saved.funcoes).map(([ip, funcao]) => [normalizarIp(ip), funcao]));
+        }
         chamadas = saved.chamadas.map(c => ({ ...c, id: String(c.id) }));
         if (saved.postos && typeof saved.postos === 'object' && !Array.isArray(saved.postos)) {
             for (const [ip, nome] of Object.entries(saved.postos)) {
@@ -37,16 +42,17 @@ function criarServidor({ porta = 3000, host = '0.0.0.0', pastaDados = path.join(
     const wss = new WebSocketServer({ server, maxPayload: 4096 });
     const estado = () => {
         const ativa = pendente;
-        return { chamadas, postos, chamadaAtiva: Boolean(ativa), horaInicioChamada: ativa ? Date.parse(ativa.horaChamada) : null };
+        return { chamadas, postos, funcoes, chamadaAtiva: Boolean(ativa), horaInicioChamada: ativa ? Date.parse(ativa.horaChamada) : null };
     };
-    function guardar(novas, novosPostos = postos) {
+    function guardar(novas, novosPostos = postos, novasFuncoes = funcoes) {
         const tmp = `${ficheiro}.tmp`;
         const fd = fs.openSync(tmp, 'w', 0o600);
-        try { fs.writeFileSync(fd, JSON.stringify({ versao: 1, chamadas: novas, postos: novosPostos }, null, 2)); fs.fsyncSync(fd); }
+        try { fs.writeFileSync(fd, JSON.stringify({ versao: 1, chamadas: novas, postos: novosPostos, funcoes: novasFuncoes }, null, 2)); fs.fsyncSync(fd); }
         finally { fs.closeSync(fd); }
         fs.renameSync(tmp, ficheiro);
         chamadas = novas;
         postos = novosPostos;
+        funcoes = novasFuncoes;
         pendente = chamadas.find(c => !c.resolvida);
         snapshot = undefined;
     }
@@ -70,7 +76,7 @@ function criarServidor({ porta = 3000, host = '0.0.0.0', pastaDados = path.join(
             let msg;
             try {
                 msg = JSON.parse(raw.toString());
-                if (!msg || !['chamar', 'atendido', 'configurar-posto', 'remover-posto'].includes(msg.tipo) || typeof msg.pedidoId !== 'string' || !msg.pedidoId.trim() || msg.pedidoId.length > 80) throw new Error('Pedido inválido.');
+                if (!msg || !['chamar', 'atendido', 'configurar-posto', 'remover-posto', 'escolher-funcao'].includes(msg.tipo) || typeof msg.pedidoId !== 'string' || !msg.pedidoId.trim() || msg.pedidoId.length > 80) throw new Error('Pedido inválido.');
                 const ativa = pendente;
                 let nova, mudou = false;
                 if (msg.tipo === 'chamar') {
@@ -81,6 +87,11 @@ function criarServidor({ porta = 3000, host = '0.0.0.0', pastaDados = path.join(
                     }
                 } else if (msg.tipo === 'atendido' && ativa && msg.chamadaId === ativa.id) {
                     guardar(chamadas.map(c => c.id === ativa.id ? { ...c, resolvida: true, horaResolucao: new Date().toISOString() } : c));mudou = true;
+                }
+                if (msg.tipo === 'escolher-funcao') {
+                    if (!['colaborador', 'backoffice'].includes(msg.funcao)) throw new Error('Função inválida.');
+                    // Bind preferences to the real socket IP; ignore caller-supplied IPs.
+                    if (funcoes[origemIp] !== msg.funcao) { guardar(chamadas, postos, { ...funcoes, [origemIp]: msg.funcao });mudou = true; }
                 }
                 if (msg.tipo === 'configurar-posto' || msg.tipo === 'remover-posto') {
                     const ip = normalizarIp(msg.ip);
@@ -97,7 +108,7 @@ function criarServidor({ porta = 3000, host = '0.0.0.0', pastaDados = path.join(
                 if (nova) eventos.emit('chamada', nova);
                 if (mudou) eventos.emit('estado', estado());
             } catch (erro) {
-                enviar(ws, { tipo: 'erro', pedidoId: msg?.pedidoId, mensagem: ['Endereço IP inválido.', 'Nome inválido (máximo 60 caracteres).'].includes(erro.message) ? erro.message : 'Não foi possível guardar a alteração. Verifique o disco e tente novamente.' });
+                enviar(ws, { tipo: 'erro', pedidoId: msg?.pedidoId, mensagem: ['Endereço IP inválido.', 'Nome inválido (máximo 60 caracteres).', 'Função inválida.'].includes(erro.message) ? erro.message : 'Não foi possível guardar a alteração. Verifique o disco e tente novamente.' });
                 console.error('Pedido recusado:', erro.message);
             }
         });

@@ -71,3 +71,46 @@ test('invalid records are refused without overwriting the history file',()=>{
  const dir=fs.mkdtempSync(path.join(os.tmpdir(),'invalid-')),p=path.join(dir,'chamadas.json');
  try{const text=JSON.stringify({versao:1,chamadas:[{id:'old',resolvida:false,horaChamada:'invalid'}]});fs.writeFileSync(p,text);assert.throws(()=>criarServidor({pastaDados:dir}),/Histórico inválido/);assert.equal(fs.readFileSync(p,'utf8'),text);}finally{fs.rmSync(dir,{recursive:true,force:true});}
 });
+
+test('equipment roles use the socket IP, survive restart and preserve calls and names', async t => {
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'roles-')),p=path.join(dir,'chamadas.json');
+ fs.writeFileSync(p,JSON.stringify({versao:1,chamadas:[],postos:{'127.0.0.1':'Marcelo'}}));
+ let s=criarServidor({porta:0,host:'127.0.0.1',pastaDados:dir});
+ t.after(async()=>{await s.fechar();fs.rmSync(dir,{recursive:true,force:true});});
+ const c=await connect(await s.iniciar(),{headers:{'X-Forwarded-For':'10.21.225.99'}});
+ assert.deepEqual((await c.next('estado')).dados.funcoes,{});
+ const send=async msg=>{c.ws.send(JSON.stringify(msg));await c.next('confirmacao');};
+ await send({tipo:'chamar',pedidoId:'role-call'});const id=s.estado().chamadas[0].id;
+ let alarms=0,updates=0;s.eventos.on('chamada',()=>alarms++);s.eventos.on('estado',()=>updates++);
+ await send({tipo:'escolher-funcao',funcao:'backoffice',ip:'10.21.225.99',pedidoId:'role-first'});
+ assert.deepEqual(s.estado().funcoes,{'127.0.0.1':'backoffice'});
+ await send({tipo:'escolher-funcao',funcao:'backoffice',pedidoId:'role-first'});
+ assert.equal(updates,1);assert.equal(alarms,0);
+ c.ws.send(JSON.stringify({tipo:'escolher-funcao',funcao:'admin',pedidoId:'bad-role'}));
+ assert.match((await c.next('erro')).mensagem,/Função inválida/);
+ await s.fechar();s=criarServidor({porta:0,host:'127.0.0.1',pastaDados:dir});
+ const b=await connect(await s.iniciar()),state=await b.next('estado');
+ assert.equal(state.ipCliente,'127.0.0.1');assert.equal(state.dados.funcoes[state.ipCliente],'backoffice');
+ assert.equal(state.dados.chamadas[0].id,id);assert.equal(state.dados.postos['127.0.0.1'],'Marcelo');
+ fs.mkdirSync(p+'.tmp');b.ws.send(JSON.stringify({tipo:'escolher-funcao',funcao:'colaborador',pedidoId:'role-disk-error'}));
+ await b.next('erro');assert.equal(s.estado().funcoes['127.0.0.1'],'backoffice');
+ assert.equal(JSON.parse(fs.readFileSync(p)).funcoes['127.0.0.1'],'backoffice');
+ fs.rmdirSync(p+'.tmp');b.ws.send(JSON.stringify({tipo:'escolher-funcao',funcao:'colaborador',pedidoId:'role-last'}));await b.next('confirmacao');
+ await s.fechar();s=criarServidor({porta:0,host:'127.0.0.1',pastaDados:dir});
+ assert.equal(s.estado().funcoes['127.0.0.1'],'colaborador');
+ assert.equal(s.estado().chamadas[0].id,id);assert.equal(s.estado().chamadas[0].resolvida,false);
+});
+test('invalid equipment roles are rejected without overwriting the file',()=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'roles-invalid-')),p=path.join(dir,'chamadas.json');
+ try{for(const funcoes of [null,[],{'not-an-ip':'backoffice'},{'127.0.0.1':'admin'}]){
+  const text=JSON.stringify({versao:1,chamadas:[],funcoes});fs.writeFileSync(p,text);
+  assert.throws(()=>criarServidor({pastaDados:dir}),/Funções dos equipamentos inválidas/);assert.equal(fs.readFileSync(p,'utf8'),text);
+ }}finally{fs.rmSync(dir,{recursive:true,force:true});}
+});
+test('choosing a role preserves preferences for other equipment IPs',async t=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'roles-other-'));
+ fs.writeFileSync(path.join(dir,'chamadas.json'),JSON.stringify({versao:1,chamadas:[],funcoes:{'10.21.225.7':'backoffice','10.21.225.20':'colaborador'}}));
+ const s=criarServidor({porta:0,host:'127.0.0.1',pastaDados:dir});t.after(async()=>{await s.fechar();fs.rmSync(dir,{recursive:true,force:true});});
+ const c=await connect(await s.iniciar());await c.next('estado');c.ws.send(JSON.stringify({tipo:'escolher-funcao',funcao:'colaborador',pedidoId:'third-ip',ip:'10.21.225.7'}));await c.next('confirmacao');
+ assert.deepEqual(s.estado().funcoes,{'10.21.225.7':'backoffice','10.21.225.20':'colaborador','127.0.0.1':'colaborador'});
+});

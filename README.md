@@ -2,7 +2,7 @@
 
 ## Download for Windows
 
-[Download the Windows 10/11 64-bit ZIP](https://github.com/pika2112/GPT/releases/download/v2.1.0-win10-11/Farmacia-Faria-2.1.0-Windows10-11.zip).
+[Download the Windows 10/11 64-bit ZIP](https://github.com/pika2112/GPT/releases/download/v2.2.0-win10-11/Farmacia-Faria-2.2.0-Windows10-11.zip).
 
 [Windows 8 edition (2.0.5)](https://github.com/pika2112/GPT/releases/download/v2.0.5-faria/Farmacia-Faria-2.0.5-Windows8.zip) remains available separately.
 
@@ -11,7 +11,7 @@ The current edition requires Windows 10 or 11, 64-bit.
 Extract **all** files and run `Iniciar.cmd` on the Back Office PC. Keep the application folder together.
 No Node.js installation is needed. Read `START-HERE.txt` first.
 
-[Installation and user manual (Portuguese PDF)](https://github.com/pika2112/GPT/releases/download/v2.1.0-win10-11/Manual-Farmacia-Faria-2.1.0.pdf). The same manual and final-test checklist are included in the ZIP.
+[Installation and user manual (Portuguese PDF)](https://github.com/pika2112/GPT/releases/download/v2.2.0-win10-11/Manual-Farmacia-Faria-2.2.0.pdf). The same manual and final-test checklist are included in the ZIP.
 
 See `ATUALIZAR.txt` to replace an old version without losing history.
 
@@ -70,3 +70,10 @@ Version 2.0.5 defers historical rendering and Excel loading, caches shared serve
 retries unacknowledged requests without duplicates, distinguishes the calling computer,
 and bounds startup logs. See `VALIDATION.txt` for test scope and performance limits.
 The final on-site test checklist is in the manual and `TESTE-FINAL.txt`.
+
+Version 2.2.0 remembers the last selected role (Back Office or Colaborador) on
+the server, keyed by the real client socket IP. It survives browser and server
+restarts, works across browsers, appears in Settings and is included in JSON
+backups. Use Mudar de posto to change it. Reserve device IPs; clients sharing
+an IP share the preference. Older files load with no role preferences; older
+application versions do not preserve the new optional field.
