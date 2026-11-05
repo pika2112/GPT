@@ -13,7 +13,15 @@ app.whenReady().then(async () => {
   footerTemplate:'<div style="width:100%;padding:0 17mm;font-family:Arial;font-size:8px;color:#64745f;display:flex;justify-content:space-between"><span>Sistema de Chamadas · Manual de instalação e utilização · 3.0.0</span><span><span class="pageNumber"></span> / <span class="totalPages"></span></span></div>'
  });
  const pages=(pdf.toString('latin1').match(/\/Type\s*\/Page\b/g)||[]).length;
- if(pages!==10)throw new Error('Manual layout changed: expected 10 pages, got '+pages);
+ if(pages!==10){
+  const sections=await win.webContents.executeJavaScript("Array.from(document.querySelectorAll('section.page')).map(el=>({id:el.id||'cover',html:el.outerHTML}))");
+  for(const section of sections){
+   await win.webContents.executeJavaScript('document.body.innerHTML='+JSON.stringify(section.html));
+   const part=await win.webContents.printToPDF({pageSize:'A4',printBackground:true,preferCSSPageSize:true});
+   console.log('Manual section:',section.id,'pages:',(part.toString('latin1').match(/\/Type\s*\/Page\b/g)||[]).length);
+  }
+  throw new Error('Manual layout changed: expected 10 pages, got '+pages);
+ }
  fs.writeFileSync(path.join(__dirname,'../docs/Manual-Sistema-Chamadas-3.0.0.pdf'),pdf);
  console.log('Manual PDF generated:',pdf.length,'bytes');app.exit(0);
 }).catch(error=>{console.error(error);app.exit(1);});
