@@ -43,7 +43,7 @@ module.exports = async function testar({ janela, servico, tray, log }) {
         assert.ok(await janela.webContents.executeJavaScript('document.getElementById("todayLog").textContent.includes("Marcelo")'));
         assert.equal(await janela.webContents.executeJavaScript('typeof window.XLSX'),'undefined');
         await janela.webContents.executeJavaScript('ensureExcel()');
-        assert.equal(await janela.webContents.executeJavaScript('Array.from(new Uint8Array(FariaExcel.criarXls({chamadas:todayCalls(),postos:posts})).slice(0,8)).map(x=>x.toString(16).padStart(2,"0")).join("")'),'d0cf11e0a1b11ae1');
+        assert.equal(await janela.webContents.executeJavaScript('Array.from(new Uint8Array(ChamadasExcel.criarXls({chamadas:todayCalls(),postos:posts})).slice(0,8)).map(x=>x.toString(16).padStart(2,"0")).join("")'),'d0cf11e0a1b11ae1');
         await janela.webContents.executeJavaScript('exportTodayXLS()');
         // A fresh browser window has no preload, sessionStorage or localStorage state.
         const { BrowserWindow } = require('electron');
@@ -72,6 +72,41 @@ module.exports = async function testar({ janela, servico, tray, log }) {
             await js("openSettings()");
             assert.ok(await js("document.getElementById('postLog').textContent.includes('Back Office')"));
             await js("closeSettings()");
+            // Shared pharmacy settings must update safe text, backup and a fresh load.
+            await js("openSettings();document.getElementById('pharmacyName').value='Farmácia Central & Saúde';savePharmacy({preventDefault(){}})");
+            await esperar(() => js("!request && pharmacyName()==='Farmácia Central & Saúde'"));
+            await esperar(() => janela.webContents.executeJavaScript("pharmacyName()==='Farmácia Central & Saúde'"));
+            assert.equal(servico.estado().configuracao.nomeFarmacia,'Farmácia Central & Saúde');
+            await js("closeSettings()");await browser.loadURL('http://127.0.0.1:3000');
+            await esperar(() => js("ready && pharmacyName()==='Farmácia Central & Saúde'"));
+            assert.equal(await js("document.querySelector('[data-pharmacy-name]').textContent"),'Farmácia Central & Saúde');
+            assert.equal(await js("document.title"),'Farmácia Central & Saúde · Atendimento');
+            assert.equal(await js("document.body.innerText.includes('Farmácia Faria')"),false);
+            const namedBackup=await js("(()=>{let result;const old=download;download=(n,d)=>{result=d;};exportBackup();download=old;return JSON.parse(result);})()");
+            assert.equal(namedBackup.configuracao.nomeFarmacia,'Farmácia Central & Saúde');
+            await js("openSettings();document.getElementById('pharmacyName').value='<img src=x onerror=window.nameInjected=1>';savePharmacy({preventDefault(){}})");
+            await esperar(() => js("!request && pharmacyName().startsWith('<img')"));
+            assert.equal(await js("document.querySelectorAll('[data-pharmacy-name] img').length"),0);
+            assert.equal(await js("window.nameInjected"),undefined);
+            await js("document.getElementById('pharmacyName').value='Farmácia Central & Saúde';savePharmacy({preventDefault(){}})");
+            await esperar(() => js("!request && pharmacyName()==='Farmácia Central & Saúde'"));
+            await js("closeSettings()");
+            browser.setSize(390,844);await pause(200);
+            assert.equal(await js("document.documentElement.scrollWidth<=innerWidth"),true);
+            browser.setSize(1280,1000);browser.show();await pause(200);
+            if(process.env.CHAMADAS_MANUAL_ASSETS){
+                const output=process.env.CHAMADAS_MANUAL_ASSETS;fs.mkdirSync(output,{recursive:true});
+                const capture=async(selector,file)=>{
+                    const rect=await js("(()=>{const el=document.querySelector("+JSON.stringify(selector)+");el.scrollIntoView({block:'center'});const r=el.getBoundingClientRect();return{x:Math.floor(r.x),y:Math.floor(r.y),width:Math.ceil(r.width),height:Math.ceil(r.height)};})()");
+                    await pause(100);fs.writeFileSync(path.join(output,file),(await browser.webContents.capturePage(rect)).toPNG());
+                };
+                await capture('.today-layout','hoje.png');
+                await js("openSettings()");await capture('section[aria-labelledby=postHeading]','definicoes.png');
+                await js("closeSettings();calls.unshift({id:'manual-preview',horaChamada:new Date(Date.now()-12000).toISOString(),horaResolucao:null,resolvida:false,origemIp:'127.0.0.1',origemNome:'Marcelo'});render()");
+                await capture('.alert-inner','alerta.png');
+                await js("calls=calls.filter(c=>c.id!=='manual-preview');render()");
+            }
+            log.escrever('PHARMACY NAME TEST PASSED: shared configuration, reload, backup, safe text, mobile and neutral branding.');
             log.escrever('ROLE TEST PASSED: fresh browser, old session ignored, role changes, reload, cross-client sync and JSON backup.');
         } finally { browser.destroy(); }
         log.escrever('SMOKE TEST PASSED: real desktop launch, preload, tray close, incoming call, window restore, saved history and resolution.');

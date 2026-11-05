@@ -22,6 +22,7 @@ jobs:
       - name: Launch the real Windows desktop and test calls
         shell: pwsh
         run: |
+          $env:CHAMADAS_MANUAL_ASSETS = Join-Path $env:GITHUB_WORKSPACE 'docs/manual-assets'
           $env:CHAMADAS_SMOKE_DATA = Join-Path $env:RUNNER_TEMP 'chamadas-smoke'
           $appExe = Resolve-Path 'dist/win-unpacked/Sistema de Chamadas.exe'
           $proc = Start-Process -FilePath $appExe -ArgumentList '--smoke-test' -PassThru
@@ -36,7 +37,7 @@ jobs:
       - name: Package the folder distribution
         shell: pwsh
         run: |
-          $packageRoot = 'release/FarmaciaFaria'
+          $packageRoot = 'release/SistemaChamadas'
           New-Item -ItemType Directory -Force "$packageRoot/Manuais" | Out-Null
           Copy-Item -Recurse dist/win-unpacked "$packageRoot/Chamadas"
           Copy-Item scripts/Iniciar.cmd "$packageRoot/Chamadas/Iniciar.cmd"
@@ -44,11 +45,11 @@ jobs:
           Copy-Item ATUALIZAR.txt "$packageRoot/ATUALIZAR.txt"
           Copy-Item INSTALACAO.txt "$packageRoot/Manuais/INSTALACAO.txt"
           Copy-Item TESTE-FINAL.txt "$packageRoot/Manuais/TESTE-FINAL.txt"
-          Copy-Item docs/Manual-Farmacia-Faria-2.2.1.pdf "$packageRoot/Manuais/Manual-Farmacia-Faria-2.2.1.pdf"
-          $zipPath = Join-Path $env:GITHUB_WORKSPACE 'Farmacia-Faria-2.2.1-Windows10-11.zip'
+          Copy-Item docs/Manual-Sistema-Chamadas-3.0.0.pdf "$packageRoot/Manuais/Manual-Sistema-Chamadas-3.0.0.pdf"
+          $zipPath = Join-Path $env:GITHUB_WORKSPACE 'Sistema-Chamadas-3.0.0-Windows10-11.zip'
           Push-Location release
           try {
-            7z a -tzip -mx=3 $zipPath ./FarmaciaFaria
+            7z a -tzip -mx=3 $zipPath ./SistemaChamadas
             if ($LASTEXITCODE -ne 0) { throw 'ZIP packaging failed' }
           } finally { Pop-Location }
           # Inspect the final archive, including every runtime file.
@@ -60,8 +61,8 @@ jobs:
               $relative = [System.IO.Path]::GetRelativePath((Resolve-Path release).Path, $file.FullName).Replace('\','/')
               if ($relative -notin $names) { throw "File missing from ZIP: $relative" }
             }
-            foreach ($required in @('Chamadas/Iniciar.cmd','Chamadas/Sistema de Chamadas.exe','Chamadas/resources/app.asar','Manuais/Manual-Farmacia-Faria-2.2.1.pdf','Manuais/INSTALACAO.txt','Manuais/TESTE-FINAL.txt','LEIA-PRIMEIRO.txt','ATUALIZAR.txt')) {
-              if ("FarmaciaFaria/$required" -notin $names) { throw "ZIP layout incorrect: $required" }
+            foreach ($required in @('Chamadas/Iniciar.cmd','Chamadas/Sistema de Chamadas.exe','Chamadas/resources/app.asar','Manuais/Manual-Sistema-Chamadas-3.0.0.pdf','Manuais/INSTALACAO.txt','Manuais/TESTE-FINAL.txt','LEIA-PRIMEIRO.txt','ATUALIZAR.txt')) {
+              if ("SistemaChamadas/$required" -notin $names) { throw "ZIP layout incorrect: $required" }
             }
             if ($names | Where-Object { $_ -match '(^|/)dados/|(^|/)chamadas\.json$' }) { throw 'User data must not be shipped in the application ZIP' }
             Write-Output "ZIP LAYOUT PASSED: $($archive.Entries.Count) entries, all runtime files and manuals present."
@@ -76,10 +77,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         shell: pwsh
         run: |
-          gh release view v2.2.1-win10-11 --repo $env:GITHUB_REPOSITORY *> $null
+          gh release view v3.0.0-generico --repo $env:GITHUB_REPOSITORY *> $null
           if ($LASTEXITCODE -ne 0) {
-            gh release create v2.2.1-win10-11 --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'Farmácia Faria 2.2.1 — pacote organizado' --notes 'ZIP organizado: FarmaciaFaria/Chamadas contém a aplicação completa; FarmaciaFaria/Manuais contém o PDF e os guias. LEIA-PRIMEIRO.txt e ATUALIZAR.txt estão na raiz. Para atualizar: exportar cópia JSON, sair pelo ícone junto ao relógio e substituir apenas a pasta do programa. Preserva histórico, nomes e funções por IP em AppData. Windows 10/11 de 64 bits. Executável e estrutura do ZIP verificados automaticamente.'
+            gh release create v3.0.0-generico --repo $env:GITHUB_REPOSITORY --target $env:GITHUB_SHA --title 'Sistema de Chamadas 3.0.0 — edição genérica' --notes 'Edição genérica sem marca de uma farmácia específica. Configure o nome em Definições → Identificação da farmácia. O nome é partilhado por todos os postos, aparece nos títulos e nas notificações e fica incluído na cópia JSON. Visual azul neutro e ícones novos. Preserva histórico, nomes de postos e funções por IP. ZIP organizado em SistemaChamadas/Chamadas e SistemaChamadas/Manuais. Leia ATUALIZAR.txt. Windows 10/11 de 64 bits. Testes de persistência, sincronização, notificações, interface e estrutura do ZIP antes da publicação.'
             if ($LASTEXITCODE -ne 0) { throw 'Release creation failed' }
           }
-          gh release upload v2.2.1-win10-11 Farmacia-Faria-2.2.1-Windows10-11.zip docs/Manual-Farmacia-Faria-2.2.1.pdf --repo $env:GITHUB_REPOSITORY --clobber
+          gh release upload v3.0.0-generico Sistema-Chamadas-3.0.0-Windows10-11.zip docs/Manual-Sistema-Chamadas-3.0.0.pdf --repo $env:GITHUB_REPOSITORY --clobber
           if ($LASTEXITCODE -ne 0) { throw 'Release upload failed' }

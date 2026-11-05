@@ -1,4 +1,4 @@
-FARMÁCIA FARIA — ATUALIZAR PARA 2.2.1
+SISTEMA DE CHAMADAS — ATUALIZAR PARA 3.0.0
 
 SIM: A ATUALIZAÇÃO CONSISTE EM SUBSTITUIR A PASTA DO PROGRAMA.
 Faça primeiro uma cópia JSON e encerre completamente a aplicação.
@@ -9,17 +9,17 @@ Não misture ficheiros antigos e novos.
 2. Clique com o botão direito no ícone junto ao relógio e escolha
    "Sair e parar o serviço…". Confirme a saída. O X NÃO encerra.
 3. Extraia o novo ZIP inteiro para uma pasta temporária.
-   Dentro de FarmaciaFaria encontrará Chamadas e Manuais.
+   Dentro de SistemaChamadas encontrará Chamadas e Manuais.
 4. Na localização onde usa o programa, renomeie Chamadas para Chamadas-antiga.
-   Exemplo: C:\FarmaciaFaria\Chamadas → C:\FarmaciaFaria\Chamadas-antiga.
+   Exemplo: C:\SistemaChamadas\Chamadas → C:\SistemaChamadas\Chamadas-antiga.
 5. Copie a NOVA pasta Chamadas do ZIP para a mesma localização da anterior:
-   C:\FarmaciaFaria\Chamadas\Iniciar.cmd.
+   C:\SistemaChamadas\Chamadas\Iniciar.cmd.
    Não coloque Chamadas dentro de outra pasta Chamadas.
    Se usa outra localização, conserve esse caminho.
 6. Substitua também a pasta Manuais e os dois TXT da raiz pelas novas versões.
    Os manuais são documentação; não são necessários para executar o programa.
 7. Abra Chamadas\Iniciar.cmd na mesma conta do Windows que usava antes.
-   Confirme versão 2.2.1, histórico, nomes dos postos e funções por IP.
+   Confirme versão 3.0.0, histórico, nomes dos postos e funções por IP.
 8. Faça uma chamada de teste. Nos outros computadores, use Ctrl+F5.
    O endereço mantém-se se o IP do PC principal continuar igual.
 9. Se mudou a localização da aplicação, volte a ativar o arranque com o Windows
@@ -40,3 +40,13 @@ Não copie uma pasta dados antiga por cima desta pasta.
 Esta instrução aplica-se à aplicação Windows; o modo Node/servidor tem a sua
 própria localização de dados e exige conservar a pasta definida para esse modo.
 O arranque com o Windows ocorre depois de iniciar sessão na mesma conta.
+
+EDIÇÃO GENÉRICA 3.0.0
+Pode manter a localização atual da pasta Chamadas ao atualizar. A nova pasta
+SistemaChamadas do ZIP é apenas a organização da distribuição; não é obrigatório
+mudar o local onde já executa o programa.
+A pasta de dados continua a ser %APPDATA%\sistema-chamadas-loja\.
+A edição genérica preserva histórico, nomes e funções; configure o nome da farmácia
+em Definições → Identificação da farmácia → Guardar nome.
+Não volte a usar uma aplicação anterior para editar estes dados: poderá eliminar
+a nova configuração ao guardar.

@@ -1,7 +1,7 @@
-FARMÁCIA FARIA 2.2.1 — WINDOWS 10/11 DE 64 BITS
+SISTEMA DE CHAMADAS 3.0.0 — WINDOWS 10/11 DE 64 BITS
 
 CONTEÚDO DO ZIP
-FarmaciaFaria/
+SistemaChamadas/
   Chamadas/          Aplicação completa: EXE, DLLs, resources, locales, Iniciar.cmd
   Manuais/           Manual PDF, instruções detalhadas e lista de teste final
   LEIA-PRIMEIRO.txt  Este ficheiro
@@ -11,13 +11,13 @@ Se já usa o programa, leia ATUALIZAR.txt antes de copiar qualquer pasta.
 
 PRIMEIRA INSTALAÇÃO
 1. Extraia o ZIP inteiro para uma pasta temporária.
-2. Copie a pasta FarmaciaFaria para C:\
-   Resultado: C:\FarmaciaFaria\Chamadas\ e C:\FarmaciaFaria\Manuais\.
+2. Copie a pasta SistemaChamadas para C:\
+   Resultado: C:\SistemaChamadas\Chamadas\ e C:\SistemaChamadas\Manuais\.
    Se não tiver permissões, copie-a para %LOCALAPPDATA%\.
 3. Abra Chamadas e execute Iniciar.cmd.
    Mantenha todos os ficheiros dessa pasta juntos; não copie apenas o EXE.
 4. Permita a porta TCP 3000 apenas na rede privada da farmácia.
-5. Os restantes computadores abrem http://10.21.225.7:3000 no navegador.
+5. Os restantes computadores abrem http://192.168.1.10:3000 no navegador.
    Use o IP atual do computador principal se for diferente.
 6. Escolha a função de cada IP uma vez: Back Office ou Colaborador.
    A última escolha fica guardada no servidor.
@@ -34,3 +34,12 @@ O histórico, os nomes e as funções por IP ficam fora da pasta do programa.
 Não apague %APPDATA%\sistema-chamadas-loja.
 As cópias JSON são feitas em Definições → Cópia de segurança.
 O PC principal deve ficar ligado, sem suspensão e com a aplicação a correr.
+
+IDENTIFICAÇÃO DA FARMÁCIA
+Abra o Back Office → Definições → Identificação da farmácia.
+Introduza o nome e clique Guardar nome. O nome aparece em todos os postos,
+nos títulos da janela e nas notificações. Fica guardado no servidor e no JSON.
+Uma instalação nova apresenta apenas Farmácia até configurar o nome.
+
+O endereço 192.168.1.10:3000 é apenas um exemplo. Use o IP real do PC principal,
+disponível no menu do ícone junto ao relógio → Endereços para colaboradores.

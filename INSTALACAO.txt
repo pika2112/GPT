@@ -1,11 +1,11 @@
 Organização do pacote: Chamadas contém o programa; Manuais contém a documentação.
 Para atualizar uma versão existente, leia primeiro ATUALIZAR.txt na raiz.
 
-FARMÁCIA FARIA — CHAMADAS 2.2.1 — WINDOWS 10/11
+SISTEMA DE CHAMADAS — CHAMADAS 3.0.0 — WINDOWS 10/11
 
 INICIAR A APLICAÇÃO
-1. Descarregue Farmacia-Faria-2.2.1-Windows10-11.zip e extraia TODOS os ficheiros.
-   Abra FarmaciaFaria\Chamadas e execute Iniciar.cmd.
+1. Descarregue Sistema-Chamadas-3.0.0-Windows10-11.zip e extraia TODOS os ficheiros.
+   Abra SistemaChamadas\Chamadas e execute Iniciar.cmd.
    Mantenha o EXE, as DLLs e as pastas resources e locales juntos.
    Não precisa de Node.js. O programa não tem assinatura digital.
 2. O computador do Back Office deve ficar ligado, sem suspensão,
@@ -16,7 +16,7 @@ INICIAR A APLICAÇÃO
    clique com o botão direito no ícone azul. Em "Endereços para colaboradores",
    clique no endereço para o copiar.
 5. Nos outros computadores, abra esse endereço num navegador, por exemplo
-   http://10.21.225.7:3000, e escolha Colaborador.
+   http://192.168.1.10:3000, e escolha Colaborador.
 6. Para iniciar automaticamente, marque "Iniciar com o Windows" no menu
    do ícone. A aplicação arranca depois de iniciar sessão no Windows.
 
@@ -97,14 +97,14 @@ O servidor não publica o código-fonte nem a pasta de dados na rede.
 
 COMPATIBILIDADE E DIAGNÓSTICO
 A versão 2.0.0 não funciona no Windows 8 (exige Windows 10+).
-A versão 2.2.1 usa Electron 44.7.2 para Windows 10/11 de 64 bits.
+A versão 3.0.0 usa Electron 44.7.2 para Windows 10/11 de 64 bits.
 Para Windows 8, use a edição 2.0.5 disponível separadamente.
 Use apenas numa rede local de confiança.
 Se não abrir, execute Iniciar.cmd e indique o código de saída.
 Os logs diagnostico-console.log e diagnostico-electron.log ficam na pasta Chamadas da aplicação.
 O log de arranque fica em %APPDATA%\sistema-chamadas-loja\arranque.log.
 
-INTERFACE FARMÁCIA FARIA
+INTERFACE SISTEMA DE CHAMADAS
 O painel principal mostra HOJE (horário de Lisboa).
 O histórico e as métricas ficam em "Histórico e análise", fechado por defeito.
 Pode associar IPs a nomes em "Definições" → "Postos da farmácia" e filtrar/exportar por posto.
@@ -119,3 +119,9 @@ Reserve os IPs no router. Equipamentos que partilhem o mesmo IP partilham a fun�
 As cópias JSON incluem estas preferências. Na primeira abertura após atualizar,
 os navegadores escolhem uma vez; a aplicação Windows usa Back Office por defeito
 quando ainda não há uma preferência guardada para o seu IP local.
+
+NOME DA FARMÁCIA
+No Back Office, abra Definições → Identificação da farmácia.
+Guarde o nome (1 a 100 caracteres). A atualização é enviada a todos os postos,
+persiste ao reiniciar e é incluída nas cópias JSON.
+Os endereços desta documentação são exemplos; use sempre o IP real do servidor.

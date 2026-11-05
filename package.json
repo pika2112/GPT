@@ -1,7 +1,7 @@
 {
   "name": "sistema-chamadas-loja",
-  "version": "2.2.1",
-  "description": "Farmácia Faria — atendimento, resumo diário e registos por posto",
+  "version": "3.0.0",
+  "description": "Sistema de chamadas para farmácias — nome configurável, atendimento e histórico por posto",
   "main": "desktop.js",
   "scripts": {
     "start": "node servidor.js",
@@ -9,7 +9,11 @@
     "desktop": "electron .",
     "build:win": "electron-builder --win portable --x64",
     "build:installer": "electron-builder --win nsis --x64",
-    "build:folder": "electron-builder --win --x64 --dir"
+    "build:folder": "electron-builder --win --x64 --dir",
+    "prebuild:folder": "node scripts/generate-icons.js",
+    "prebuild:win": "node scripts/generate-icons.js",
+    "prebuild:installer": "node scripts/generate-icons.js",
+    "predesktop": "node scripts/generate-icons.js"
   },
   "dependencies": {
     "express": "^4.21.2",

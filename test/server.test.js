@@ -114,3 +114,36 @@ test('choosing a role preserves preferences for other equipment IPs',async t=>{
  const c=await connect(await s.iniciar());await c.next('estado');c.ws.send(JSON.stringify({tipo:'escolher-funcao',funcao:'colaborador',pedidoId:'third-ip',ip:'10.21.225.7'}));await c.next('confirmacao');
  assert.deepEqual(s.estado().funcoes,{'10.21.225.7':'backoffice','10.21.225.20':'colaborador','127.0.0.1':'colaborador'});
 });
+
+test('pharmacy name persists, syncs to other clients and preserves existing data',async t=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'pharmacy-name-')),p=path.join(dir,'chamadas.json');
+ fs.writeFileSync(p,JSON.stringify({versao:1,chamadas:[],postos:{'127.0.0.1':'Marcelo'},funcoes:{'127.0.0.1':'backoffice'}}));
+ let s=criarServidor({porta:0,host:'127.0.0.1',pastaDados:dir});
+ t.after(async()=>{await s.fechar();fs.rmSync(dir,{recursive:true,force:true});});
+ const port=await s.iniciar(),a=await connect(port),b=await connect(port);
+ assert.equal((await a.next('estado')).dados.configuracao.nomeFarmacia,'Farmácia');await b.next('estado');
+ let alarms=0;s.eventos.on('chamada',()=>alarms++);
+ const send=async msg=>{a.ws.send(JSON.stringify(msg));await a.next('confirmacao');};
+ await send({tipo:'configurar-farmacia',nomeFarmacia:'  Farmácia Central & Saúde  ',pedidoId:'pharmacy-name'});
+ assert.equal((await b.next('atualizacao')).dados.configuracao.nomeFarmacia,'Farmácia Central & Saúde');
+ assert.equal(alarms,0);assert.deepEqual(s.estado().funcoes,{'127.0.0.1':'backoffice'});assert.equal(s.estado().postos['127.0.0.1'],'Marcelo');
+ await send({tipo:'chamar',pedidoId:'named-call'});const id=s.estado().chamadas[0].id;
+ assert.equal(JSON.parse(fs.readFileSync(p)).configuracao.nomeFarmacia,'Farmácia Central & Saúde');
+ fs.mkdirSync(p+'.tmp');a.ws.send(JSON.stringify({tipo:'configurar-farmacia',nomeFarmacia:'Outro nome',pedidoId:'name-disk-error'}));await a.next('erro');
+ assert.equal(s.estado().configuracao.nomeFarmacia,'Farmácia Central & Saúde');fs.rmdirSync(p+'.tmp');
+ for(const name of ['', '   ', 'x'.repeat(101), null, 'Inválido\nNome']){
+  a.ws.send(JSON.stringify({tipo:'configurar-farmacia',nomeFarmacia:name,pedidoId:'bad-name'}));
+  assert.match((await a.next('erro')).mensagem,/Nome da farmácia inválido/);
+ }
+ await s.fechar();s=criarServidor({porta:0,host:'127.0.0.1',pastaDados:dir});
+ const c=await connect(await s.iniciar()),state=await c.next('estado');
+ assert.equal(state.dados.configuracao.nomeFarmacia,'Farmácia Central & Saúde');assert.equal(state.dados.chamadas[0].id,id);
+ assert.equal(state.dados.postos['127.0.0.1'],'Marcelo');assert.equal(state.dados.funcoes['127.0.0.1'],'backoffice');
+});
+test('invalid pharmacy configuration is rejected without overwriting saved data',()=>{
+ const dir=fs.mkdtempSync(path.join(os.tmpdir(),'pharmacy-invalid-')),p=path.join(dir,'chamadas.json');
+ try{for(const configuracao of [null,[],{}, {nomeFarmacia:''},{nomeFarmacia:42}]){
+  const text=JSON.stringify({versao:1,chamadas:[],configuracao});fs.writeFileSync(p,text);
+  assert.throws(()=>criarServidor({pastaDados:dir}),/Configuração da farmácia inválida/);assert.equal(fs.readFileSync(p,'utf8'),text);
+ }}finally{fs.rmSync(dir,{recursive:true,force:true});}
+});

@@ -13,14 +13,14 @@ async function harness(t, { trayError = false, serverError } = {}) {
     h.events = new EventEmitter();
     h.service = { eventos: h.events, pastaDados: dir, estado: () => ({ chamadaAtiva: h.active, chamadas: h.active ? [{origemIp: '127.0.0.1'}] : [], postos: {} }), iniciar: async () => { if (serverError) throw serverError; return 3000; }, fechar: async () => { h.closed = true; } };
     h.app = new EventEmitter();
-    Object.assign(h.app, { setAppUserModelId() {}, disableHardwareAcceleration() {}, requestSingleInstanceLock: () => true, whenReady: () => Promise.resolve(), getPath: () => dir, getVersion: () => '2.2.1', getLoginItemSettings: () => ({ openAtLogin: !!h.startup }), setLoginItemSettings: opts => {h.startup = opts.openAtLogin;}, isPackaged: true, quit() { h.app.emit('before-quit', { preventDefault() {} }); } });
+    Object.assign(h.app, { setAppUserModelId() {}, disableHardwareAcceleration() {}, requestSingleInstanceLock: () => true, whenReady: () => Promise.resolve(), getPath: () => dir, getVersion: () => '3.0.0', getLoginItemSettings: () => ({ openAtLogin: !!h.startup }), setLoginItemSettings: opts => {h.startup = opts.openAtLogin;}, isPackaged: true, quit() { h.app.emit('before-quit', { preventDefault() {} }); } });
     Object.assign(h.process, { platform: 'win32', arch: 'x64', argv: [], env: {}, versions: { electron: '22.3.27' } });
     class Win extends EventEmitter {
         constructor() { super(); h.win = this; this.visible = true; this.webContents = new EventEmitter(); this.webContents.setWindowOpenHandler = () => {}; this.webContents.session = { setPermissionRequestHandler() {} }; }
         async loadURL() {} isDestroyed() { return false; } isMinimized() { return true; } restore() { this.restored = true; } show() { this.visible = true; } hide() { this.visible = false; } focus() {} flashFrame(v) { this.flash = v; } isVisible() { return this.visible; }
     }
     class MockTray extends EventEmitter { constructor() { super(); if (trayError) throw Error('No tray'); h.tray = this; } setContextMenu(v) { this.menu = v; } setToolTip() {} }
-    class Notice extends EventEmitter { static isSupported() { return true; } constructor() { super(); h.notices.push(this); } show() { this.shown = true; } close() { this.closed = true; } }
+    class Notice extends EventEmitter { static isSupported() { return true; } constructor(options) { super(); this.options=options;h.notices.push(this); } show() { this.shown = true; } close() { this.closed = true; } }
     h.ipc = {};
     const electron = { ipcMain: {handle: (name, handler) => { h.ipc[name] = handler; }}, app: h.app, BrowserWindow: Win, Tray: MockTray, Menu: { buildFromTemplate: x => x }, Notification: Notice, nativeImage: { createFromPath: () => ({}) }, shell: { openPath() {} }, dialog: { showMessageBox: async options => { h.dialogs.push(options); return { response: 0 }; }, showErrorBox() {} } };
     const root = path.join(__dirname, '..');
@@ -32,9 +32,9 @@ async function harness(t, { trayError = false, serverError } = {}) {
 test('closing hides the window; calls restore it; shutdown stops the service', async t => {
     const h = await harness(t); assert.ok(h.tray); assert.match(h.log(), /Aplicação pronta/);
     const sender = { sender: h.win.webContents, senderFrame: {url: 'http://127.0.0.1:3000/'} };
-    assert.equal(h.ipc['faria:get-startup'](sender), false);
-    assert.equal(h.ipc['faria:set-startup'](sender, true), true);
-    assert.throws(() => h.ipc['faria:set-startup']({sender: {}, senderFrame: {url: 'http://evil.test'}}, true));
+    assert.equal(h.ipc['chamadas:get-startup'](sender), false);
+    assert.equal(h.ipc['chamadas:set-startup'](sender, true), true);
+    assert.throws(() => h.ipc['chamadas:set-startup']({sender: {}, senderFrame: {url: 'http://evil.test'}}, true));
     let prevented = false; h.win.emit('close', { preventDefault() { prevented = true; } });
     assert.ok(prevented); assert.equal(h.win.visible, false); assert.equal(h.closed, false);
     h.active = true; h.events.emit('chamada'); assert.equal(h.win.visible, true); assert.ok(h.win.restored); assert.ok(h.notices[0].shown);
@@ -50,4 +50,11 @@ test('an unavailable tray never hides the running app', async t => {
     const h = await harness(t, { trayError: true }); assert.equal(h.tray, undefined); assert.ok(h.win.visible);
     let prevented = false; h.win.emit('close', { preventDefault() { prevented = true; } }); assert.equal(prevented, false);
     assert.match(h.log(), /Área de notificação indisponível/); h.app.emit('window-all-closed'); await new Promise(r => setImmediate(r)); assert.ok(h.closed);
+});
+
+test('native notifications and tray use the configured pharmacy name', async t=>{
+ const h=await harness(t);
+ h.service.estado=()=>({chamadaAtiva:true,chamadas:[{origemIp:'127.0.0.1'}],postos:{},configuracao:{nomeFarmacia:'Farmácia Central & Saúde'}});
+ h.active=true;h.events.emit('chamada');
+ assert.equal(h.notices[0].options.title,'Farmácia Central & Saúde · Atendimento');
 });

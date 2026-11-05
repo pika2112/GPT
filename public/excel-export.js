@@ -1,7 +1,7 @@
 /* Genuine Excel 97-2003 (BIFF8) export. SheetJS is bundled locally for offline use. */
 (function(root, factory) {
     if (typeof module === 'object' && module.exports) module.exports = factory(require('./vendor/xlsx.full.min.js'));
-    else root.FariaExcel = factory(root.XLSX);
+    else root.ChamadasExcel = factory(root.XLSX);
 })(typeof globalThis !== 'undefined' ? globalThis : this, function(XLSX) {
     'use strict';
     function criarWorkbook({ chamadas, postos = {}, agora = Date.now(), folha = 'Chamadas' }) {

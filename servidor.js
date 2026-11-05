@@ -7,6 +7,7 @@ const path = require('node:path');
 const { randomUUID } = require('node:crypto');
 const { EventEmitter } = require('node:events');
 const { isIP } = require('node:net');
+function nomeValido(nome) { return typeof nome === 'string' && nome.trim().length > 0 && nome.trim().length <= 100 && !/[\u0000-\u001f\u007f]/.test(nome); }
 function normalizarIp(ip) { return String(ip || '').trim().replace(/^::ffff:/i, '').split('%')[0].toLowerCase(); }
 
 // Call changes are committed to disk before they are acknowledged or broadcast.
@@ -16,6 +17,7 @@ function criarServidor({ porta = 3000, host = '0.0.0.0', pastaDados = path.join(
     let chamadas = [];
     let postos = {};
     let funcoes = {};
+    let configuracao = { nomeFarmacia: 'Farmácia' };
     if (fs.existsSync(ficheiro)) {
         const saved = JSON.parse(fs.readFileSync(ficheiro, 'utf8'));
         if (saved.versao !== 1 || !Array.isArray(saved.chamadas)) throw new Error('Histórico inválido. Preserve o ficheiro e restaure uma cópia de segurança.');
@@ -23,6 +25,10 @@ function criarServidor({ porta = 3000, host = '0.0.0.0', pastaDados = path.join(
         if (saved.funcoes !== undefined) {
             if (!saved.funcoes || typeof saved.funcoes !== 'object' || Array.isArray(saved.funcoes) || Object.entries(saved.funcoes).some(([ip, funcao]) => !isIP(ip) || !['colaborador', 'backoffice'].includes(funcao))) throw new Error('Funções dos equipamentos inválidas. Preserve o ficheiro e restaure uma cópia de segurança.');
             funcoes = Object.fromEntries(Object.entries(saved.funcoes).map(([ip, funcao]) => [normalizarIp(ip), funcao]));
+        }
+        if (saved.configuracao !== undefined) {
+            if (!saved.configuracao || typeof saved.configuracao !== 'object' || Array.isArray(saved.configuracao) || !nomeValido(saved.configuracao.nomeFarmacia)) throw new Error('Configuração da farmácia inválida. Preserve o ficheiro e restaure uma cópia de segurança.');
+            configuracao = { nomeFarmacia: saved.configuracao.nomeFarmacia.trim() };
         }
         chamadas = saved.chamadas.map(c => ({ ...c, id: String(c.id) }));
         if (saved.postos && typeof saved.postos === 'object' && !Array.isArray(saved.postos)) {
@@ -42,17 +48,18 @@ function criarServidor({ porta = 3000, host = '0.0.0.0', pastaDados = path.join(
     const wss = new WebSocketServer({ server, maxPayload: 4096 });
     const estado = () => {
         const ativa = pendente;
-        return { chamadas, postos, funcoes, chamadaAtiva: Boolean(ativa), horaInicioChamada: ativa ? Date.parse(ativa.horaChamada) : null };
+        return { chamadas, postos, funcoes, configuracao, chamadaAtiva: Boolean(ativa), horaInicioChamada: ativa ? Date.parse(ativa.horaChamada) : null };
     };
-    function guardar(novas, novosPostos = postos, novasFuncoes = funcoes) {
+    function guardar(novas, novosPostos = postos, novasFuncoes = funcoes, novaConfiguracao = configuracao) {
         const tmp = `${ficheiro}.tmp`;
         const fd = fs.openSync(tmp, 'w', 0o600);
-        try { fs.writeFileSync(fd, JSON.stringify({ versao: 1, chamadas: novas, postos: novosPostos, funcoes: novasFuncoes }, null, 2)); fs.fsyncSync(fd); }
+        try { fs.writeFileSync(fd, JSON.stringify({ versao: 1, chamadas: novas, postos: novosPostos, funcoes: novasFuncoes, configuracao: novaConfiguracao }, null, 2)); fs.fsyncSync(fd); }
         finally { fs.closeSync(fd); }
         fs.renameSync(tmp, ficheiro);
         chamadas = novas;
         postos = novosPostos;
         funcoes = novasFuncoes;
+        configuracao = novaConfiguracao;
         pendente = chamadas.find(c => !c.resolvida);
         snapshot = undefined;
     }
@@ -76,7 +83,7 @@ function criarServidor({ porta = 3000, host = '0.0.0.0', pastaDados = path.join(
             let msg;
             try {
                 msg = JSON.parse(raw.toString());
-                if (!msg || !['chamar', 'atendido', 'configurar-posto', 'remover-posto', 'escolher-funcao'].includes(msg.tipo) || typeof msg.pedidoId !== 'string' || !msg.pedidoId.trim() || msg.pedidoId.length > 80) throw new Error('Pedido inválido.');
+                if (!msg || !['chamar', 'atendido', 'configurar-posto', 'remover-posto', 'escolher-funcao', 'configurar-farmacia'].includes(msg.tipo) || typeof msg.pedidoId !== 'string' || !msg.pedidoId.trim() || msg.pedidoId.length > 80) throw new Error('Pedido inválido.');
                 const ativa = pendente;
                 let nova, mudou = false;
                 if (msg.tipo === 'chamar') {
@@ -87,6 +94,11 @@ function criarServidor({ porta = 3000, host = '0.0.0.0', pastaDados = path.join(
                     }
                 } else if (msg.tipo === 'atendido' && ativa && msg.chamadaId === ativa.id) {
                     guardar(chamadas.map(c => c.id === ativa.id ? { ...c, resolvida: true, horaResolucao: new Date().toISOString() } : c));mudou = true;
+                }
+                if (msg.tipo === 'configurar-farmacia') {
+                    if (!nomeValido(msg.nomeFarmacia)) throw new Error('Nome da farmácia inválido (1 a 100 caracteres).');
+                    const nomeFarmacia = msg.nomeFarmacia.trim();
+                    if (configuracao.nomeFarmacia !== nomeFarmacia) { guardar(chamadas, postos, funcoes, { nomeFarmacia });mudou = true; }
                 }
                 if (msg.tipo === 'escolher-funcao') {
                     if (!['colaborador', 'backoffice'].includes(msg.funcao)) throw new Error('Função inválida.');
@@ -108,7 +120,7 @@ function criarServidor({ porta = 3000, host = '0.0.0.0', pastaDados = path.join(
                 if (nova) eventos.emit('chamada', nova);
                 if (mudou) eventos.emit('estado', estado());
             } catch (erro) {
-                enviar(ws, { tipo: 'erro', pedidoId: msg?.pedidoId, mensagem: ['Endereço IP inválido.', 'Nome inválido (máximo 60 caracteres).', 'Função inválida.'].includes(erro.message) ? erro.message : 'Não foi possível guardar a alteração. Verifique o disco e tente novamente.' });
+                enviar(ws, { tipo: 'erro', pedidoId: msg?.pedidoId, mensagem: ['Endereço IP inválido.', 'Nome inválido (máximo 60 caracteres).', 'Função inválida.', 'Nome da farmácia inválido (1 a 100 caracteres).'].includes(erro.message) ? erro.message : 'Não foi possível guardar a alteração. Verifique o disco e tente novamente.' });
                 console.error('Pedido recusado:', erro.message);
             }
         });

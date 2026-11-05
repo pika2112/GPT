@@ -59,7 +59,7 @@ function notificar() {
     try {
         if (Notification.isSupported()) {
             alerta?.close();
-            alerta = new Notification({ title: 'Farmácia Faria · Atendimento', body: `${dados.postos?.[chamada?.origemIp] || chamada?.origemNome || chamada?.origemIp || 'Um posto'} está à espera.`, silent: false, timeoutType: 'never' });
+            alerta = new Notification({ title: `${dados.configuracao?.nomeFarmacia||'Farmácia'} · Atendimento`, body: `${dados.postos?.[chamada?.origemIp] || chamada?.origemNome || chamada?.origemIp || 'Um posto'} está à espera.`, silent: false, timeoutType: 'never' });
             alerta.on('click', mostrar); alerta.show();
         }
     } catch (erro) { registar(`Notificação indisponível: ${erro.message}`); }
@@ -72,7 +72,7 @@ async function iniciar() {
     const { criarServidor } = require('./servidor');
     servico = criarServidor({ porta, pastaDados: path.join(userData, 'dados') });
     await servico.iniciar(); registar('Servidor pronto na porta 3000.');
-    janela = new BrowserWindow({ width: 1200, height: 850, minWidth: 660, minHeight: 560, title: 'Farmácia Faria · Atendimento', icon: path.join(__dirname, 'assets', 'tray.png'), autoHideMenuBar: true, webPreferences: { preload: path.join(__dirname, 'preload.js'), nodeIntegration: false, contextIsolation: true, sandbox: true, backgroundThrottling: false } });
+    janela = new BrowserWindow({ width: 1200, height: 850, minWidth: 660, minHeight: 560, title: 'Farmácia · Atendimento', icon: path.join(__dirname, 'assets', 'tray.png'), autoHideMenuBar: true, webPreferences: { preload: path.join(__dirname, 'preload.js'), nodeIntegration: false, contextIsolation: true, sandbox: true, backgroundThrottling: false } });
     // Never hide the app if a tray icon could not be created.
     janela.on('close', event => { if (!sair && tray) { event.preventDefault(); janela.hide(); } });
     janela.on('focus', () => janela.flashFrame(false));
@@ -86,15 +86,15 @@ async function iniciar() {
         if (event.sender !== janela.webContents || new URL(event.senderFrame.url).origin !== local) throw new Error('Pedido não autorizado.');
     }
     const startupPath = process.env.PORTABLE_EXECUTABLE_FILE || app.getPath('exe');
-    ipcMain.handle('faria:get-startup', event => { autorizarSettings(event);return process.platform === 'win32' && app.getLoginItemSettings({ path: startupPath }).openAtLogin; });
-    ipcMain.handle('faria:set-startup', (event, enabled) => {
+    ipcMain.handle('chamadas:get-startup', event => { autorizarSettings(event);return process.platform === 'win32' && app.getLoginItemSettings({ path: startupPath }).openAtLogin; });
+    ipcMain.handle('chamadas:set-startup', (event, enabled) => {
         autorizarSettings(event);if (typeof enabled !== 'boolean' || process.platform !== 'win32') throw new Error('Opção inválida.');
         app.setLoginItemSettings({ openAtLogin: enabled, path: startupPath });menu();return app.getLoginItemSettings({ path: startupPath }).openAtLogin;
     });
     await janela.loadURL(local); registar('Janela carregada.');
     try {
         const icon = nativeImage.createFromPath(path.join(__dirname, 'assets', 'tray.png'));
-        tray = new Tray(icon);tray.setToolTip('Farmácia Faria · A receber chamadas');tray.on('double-click', mostrar);tray.on('right-click', menu);menu();
+        tray = new Tray(icon);tray.setToolTip(`${servico.estado().configuracao?.nomeFarmacia||'Farmácia'} · A receber chamadas`);tray.on('double-click', mostrar);tray.on('right-click', menu);menu();
         registar('Ícone da área de notificação pronto.');
     } catch (erro) { tray = null; registar(`Área de notificação indisponível; mantenha a janela aberta: ${erro.message}`); }
     servico.eventos.on('chamada', notificar);

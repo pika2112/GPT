@@ -1,30 +1,17 @@
-Farmácia Faria 2.1.0 — validation scope
-14 Node automated tests: persistence, duplicate/stale actions, no-op broadcasts,
-invalid history preservation, socket shutdown, disk errors, startup-log rotation,
-desktop lifecycle/startup and genuine BIFF8 XLS bytes including multiple sheets.
-Browser regression: today and lazy history, real XLS and JSON downloads, IP names,
-lost-ACK retry without duplicates, caller ownership, midnight pending call and mobile layout.
-Windows packaging workflow runs all unit tests and the real packaged Electron desktop
-smoke test (startup, preload, tray, call, names, resolution, deferred history and XLS).
-Publication is gated on that workflow succeeding. The actual Windows 10/11 pharmacy PCs are not tested in CI.
+Sistema de Chamadas 3.0.0 — generic edition
 
-Synthetic performance comparison: median of 7 warmed renders with 10,000 in-memory
-historic calls and history closed, same headless Chromium: 2.0.4 = 81.5 ms;
-2.1.0 = 1.1 ms. Excludes network, initial startup and disk; not an end-to-end speed claim.
-Manual: 10-page tagged PDF with links, bookmarks and visually checked layouts.
+This release retains the existing call, workstation and per-IP role behavior and
+adds shared configurable pharmacy naming. Existing files without configuration
+default to Farmácia; invalid configuration is rejected without overwriting data.
 
-Final on-site validation remains required: real Windows 10/11 machine, firewall, two staff
-computers, sound, native notifications/focus, real reboot/login and Excel installed there.
-Use TESTE-FINAL.txt or page 10 of the manual. Executable is unsigned.
+Windows CI gates publication on 20 automated Node tests, the real packaged
+desktop smoke test, and final ZIP structure verification. New checks cover name
+persistence, multi-client synchronization, restart, invalid names, disk failures,
+native notification titles, safe text rendering, mobile layout and JSON backup.
+Runtime/tray icons are generated from new neutral artwork at build time.
+Manual screenshots are captured from the new generic UI in the smoke test.
 
-2.1.0 updates the packaged runtime to Electron 44.7.2 for Windows 10/11 x64.
-The existing data path, schema, app identity and network protocol are retained.
-
-2.2.0 adds persisted per-socket-IP equipment roles, compatible with version-1
-history files that have no role field. Three new server integration tests cover
-restart, authentic IP, independent saved IPs, invalid values and disk failure.
-Native packaged smoke additionally checks a fresh isolated browser session,
-ignoring old sessionStorage, role changes, reload, cross-client sync, settings
-and JSON backups. Release publication is gated on these checks succeeding.
-The local execution environment failed to provision (503); this update is
-validated on GitHub Actions rather than a local workspace.
+The local execution environment was unavailable; Windows build, tests, PDF
+generation and packaging are performed on GitHub Actions. The actual pharmacy
+PCs, firewall, native focus/sound and reboot/login behavior still need the
+on-site checklist. Windows 10/11 x64; Electron 44.7.2. Build is unsigned.
